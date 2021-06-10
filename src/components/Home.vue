@@ -46,17 +46,18 @@
 </template>
 
 <script>
+import axios from 'axios'
 export default {
   data () {
     return {
       // 左侧菜单数据
       menuList: [],
       iconObj: {
-        '125': 'iconfont icon-user',
-        '103': 'iconfont icon-tijikongjian',
-        '101': 'iconfont icon-shangpin',
-        '102': 'iconfont icon-danju',
-        '145': 'iconfont icon-baobiao'
+        '1': 'iconfont icon-user',
+        '2': 'iconfont icon-tijikongjian',
+        '3': 'iconfont icon-shangpin',
+        '4': 'iconfont icon-danju',
+        '5': 'iconfont icon-baobiao'
       },
       // 默认不折叠
       isCollapse: false,
@@ -76,10 +77,14 @@ export default {
     },
     // 获取请求菜单
     async getMenuList () {
-      const { data: res } = await this.$http.get('menus')
+      // const {data:res}
+      const { data: res } = await axios.get('http://localhost:1234/menu/')
+      console.log(res)
+      // axios.get("http://localhost:2345/menu.html")
+      // const { data: res } = await this.$http.get('menus')
       if (res.meta.status !== 200) return this.$message.error(res.meta.msg)
       this.menuList = res.data
-      // console.log(res)
+      console.log(res)
     },
     // 菜单的折叠与展开
     togleCollapse () {

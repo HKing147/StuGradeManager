@@ -35,6 +35,23 @@ const Add = () => import(/* webpackChunkName: "GoodsList_Add" */ '../components/
 
 const Order = () => import(/* webpackChunkName: "Order_Report" */ '../components/order/Order.vue')
 const Report = () => import(/* webpackChunkName: "Order_Report" */ '../components/report/Report.vue')
+// 自己写的
+/* 创建 */
+const CreateAcadamy = () => import(/* webpackChunkName: "Create" */ '../components/Create/CreateAcadamy')
+const CreateDepartment = () => import(/* webpackChunkName: "Create" */ '../components/Create/CreateDepartment')
+const CreateTRO = () => import(/* webpackChunkName: "Create" */ '../components/Create/CreateTRO')
+const CreateClass = () => import(/* webpackChunkName: "Create" */ '../components/Create/CreateClass')
+/* 录入 */
+const InputTea = () => import(/* webpackChunkName: "Input" */ '../components/Input/InputTea')
+const InputStu = () => import(/* webpackChunkName: "Input" */ '../components/Input/InputStu')
+const InputCou = () => import(/* webpackChunkName: "Input" */ '../components/Input/InputCou')
+const InputTeaCou = () => import(/* webpackChunkName: "Input" */ '../components/Input/InputTeaCou')
+const InputClassCou = () => import(/* webpackChunkName: "Input" */ '../components/Input/InputClassCou')
+const InputGrade = () => import(/* webpackChunkName: "Input" */ '../components/Input/InputGrade')
+/* 查询 */
+const QueryGrade = () => import(/* webpackChunkName: "Query" */ '../components/Query/QueryGrade')
+const QuerySum = () => import(/* webpackChunkName: "Query" */ '../components/Query/QuerySum')
+const QueryRank = () => import(/* webpackChunkName: "Query" */ '../components/Query/QueryRank')
 
 Vue.use(VueRouter)
 
@@ -54,7 +71,24 @@ const routes = [
       { path: '/goods', component: GoodsList },
       { path: '/goods/add', component: Add },
       { path: '/orders', component: Order },
-      { path: '/reports', component: Report }
+      { path: '/reports', component: Report },
+      // 自己写的
+      /* 创建 */
+      { path: '/CreateAcadamy', component: CreateAcadamy },
+      { path: '/CreateDepartment', component: CreateDepartment },
+      { path: '/CreateTRO', component: CreateTRO },
+      { path: '/CreateClass', component: CreateClass },
+      /* 录入 */
+      { path: '/InputTea', component: InputTea },
+      { path: '/InputStu', component: InputStu },
+      { path: '/InputCou', component: InputCou },
+      { path: '/InputTeaCou', component: InputTeaCou },
+      { path: '/InputClassCou', component: InputClassCou },
+      { path: '/InputGrade', component: InputGrade },
+      /* 查询 */
+      { path: '/QueryGrade', component: QueryGrade },
+      { path: '/QuerySum', component: QuerySum },
+      { path: '/QueryRank', component: QueryRank }
     ] }
 
 ]
