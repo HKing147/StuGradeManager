@@ -3,36 +3,37 @@
     <!-- 面包屑导航区 -->
     <el-breadcrumb separator-class="el-icon-arrow-right">
       <el-breadcrumb-item :to="{ path: '/home' }">首页</el-breadcrumb-item>
-      <el-breadcrumb-item>用户管理</el-breadcrumb-item>
-      <el-breadcrumb-item>用户列表</el-breadcrumb-item>
+      <el-breadcrumb-item>教研室管理</el-breadcrumb-item>
+      <el-breadcrumb-item>教研室列表</el-breadcrumb-item>
     </el-breadcrumb>
     <!-- 卡片视图 -->
     <el-card>
       <!-- 搜索 添加 -->
       <el-row :gutter="20">
         <el-col :span="6">
-          <el-input placeholder="请输入内容" v-model="queryInfo.query" clearable @clear="getUserList">
-            <el-button slot="append" icon="el-icon-search" @click="getUserList"></el-button>
+          <el-input placeholder="请输入内容" v-model="queryInfo.query" clearable @clear="getJiaoYanList">
+            <el-button slot="append" icon="el-icon-search" @click="getJiaoYanList"></el-button>
           </el-input>
         </el-col>
         <el-col :span="4">
-          <el-button type="primary" @click="addDialogVisible = true">添加用户</el-button>
+          <el-button type="primary" @click="CreateDialogVisible = true">创建教研室</el-button>
         </el-col>
       </el-row>
       <!-- 用户列表区域 -->
-      <el-table :data="userlist" border stripe>
+      <el-table :data="JiaoYanList" border stripe>
         <!-- stripe: 斑马条纹
         border：边框-->
         <el-table-column type="index" label="#"></el-table-column>
-        <el-table-column prop="username" label="姓名"></el-table-column>
-        <el-table-column prop="email" label="邮箱"></el-table-column>
-        <el-table-column prop="mobile" label="电话"></el-table-column>
-        <el-table-column prop="role_name" label="角色"></el-table-column>
+        <el-table-column prop="jid" label="教研室编号"></el-table-column>
+        <el-table-column prop="jname" label="教研室名称"></el-table-column>
+        <el-table-column prop="jcharge" label="教研室负责人"></el-table-column>
+        <el-table-column prop="dname" label="所属系"></el-table-column>
+        <!-- <el-table-column prop="role_name" label="角色"></el-table-column>
         <el-table-column label="状态">
           <template slot-scope="scope">
             <el-switch v-model="scope.row.mg_state" @change="userStateChanged(scope.row)"></el-switch>
           </template>
-        </el-table-column>
+        </el-table-column> -->
         <el-table-column label="操作">
           <template slot-scope="scope">
             <el-button
@@ -40,14 +41,14 @@
               icon="el-icon-edit"
               size="mini"
               circle
-              @click="showEditDialog(scope.row.id)"
+              @click="showEditDialog(scope.row.jid)"
             ></el-button>
             <el-button
               type="danger"
               icon="el-icon-delete"
               size="mini"
               circle
-              @click="removeUserById(scope.row.id)"
+              @click="delJiaoYan(scope.row.jid)"
             ></el-button>
             <el-tooltip
               class="item"
@@ -79,61 +80,74 @@
       ></el-pagination>
     </el-card>
 
-    <!-- 添加用户的对话框 -->
-    <el-dialog title="添加用户" :visible.sync="addDialogVisible" width="50%" @close="addDialogClosed">
+    <!-- 创建教研室的对话框 -->
+    <el-dialog title="创建教研室" :visible.sync="CreateDialogVisible" width="50%" @close="CreateDialogClosed">
       <!-- 内容主体 -->
       <el-form
-        :model="addUserForm"
-        ref="addUserFormRef"
-        :rules="addUserFormRules"
+        :model="CreateJiaoYanForm"
+        ref="CreateJiaoYanFormRef"
         label-width="100px"
       >
-        <el-form-item label="用户名" prop="username">
-          <el-input v-model="addUserForm.username"></el-input>
+      <!-- <el-form
+        :model="CreateJiaoYanForm"
+        ref="CreateJiaoYanFormRef"
+        :rules="CreateJiaoYanFormRules"
+        label-width="100px"
+      > -->
+        <el-form-item label="教研室编号" prop="jid">
+          <el-input v-model="CreateJiaoYanForm.jid"></el-input>
         </el-form-item>
-        <el-form-item label="密码" prop="password">
-          <el-input v-model="addUserForm.password"></el-input>
+        <el-form-item label="教研室名" prop="jname">
+          <el-input v-model="CreateJiaoYanForm.jname"></el-input>
         </el-form-item>
-        <el-form-item label="邮箱" prop="email">
-          <el-input v-model="addUserForm.email"></el-input>
+        <el-form-item label="教研室负责人" prop="jcharge">
+          <el-input v-model="CreateJiaoYanForm.jcharge"></el-input>
         </el-form-item>
-        <el-form-item label="手机" prop="mobile">
-          <el-input v-model="addUserForm.mobile"></el-input>
+        <el-form-item label="所属系" prop="dname">
+          <el-input v-model="CreateJiaoYanForm.dname"></el-input>
         </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
-        <el-button @click="addDialogVisible = false">取 消</el-button>
-        <el-button type="primary" @click="addUser">确 定</el-button>
+        <el-button @click="CreateDialogVisible = false">取 消</el-button>
+        <el-button type="primary" @click="CreateJiaoYan">确 定</el-button>
       </span>
     </el-dialog>
 
-    <!-- 修改用户的对话框 -->
+    <!-- 修改教研室的对话框 -->
     <el-dialog
-      title="修改用户信息"
+      title="修改教研室信息"
       :visible.sync="editDialogVisible"
       width="50%"
       @close="editDialogClosed"
     >
       <!-- 内容主体 -->
       <el-form
-        :model="editUserForm"
-        ref="editUserFormRef"
-        :rules="editUserFormRules"
-        label-width="70px"
+        :model="ModifyJiaoYanForm"
+        ref="ModifyJiaoYanFormRef"
+        label-width="100px"
       >
-        <el-form-item label="用户名">
-          <el-input v-model="editUserForm.username" disabled></el-input>
+      <!-- <el-form
+        :model="ModifyJiaoYanForm"
+        ref="ModifyJiaoYanFormRef"
+        :rules="ModifyJiaoYanFormRules"
+        label-width="100px"
+      > -->
+        <el-form-item label="教研室编号" pro="jid">
+          <el-input v-model="ModifyJiaoYanForm.jid" disabled></el-input>
         </el-form-item>
-        <el-form-item label="邮箱" prop="email">
-          <el-input v-model="editUserForm.email"></el-input>
+        <el-form-item label="教研室名" prop="jname">
+          <el-input v-model="ModifyJiaoYanForm.jname"></el-input>
         </el-form-item>
-        <el-form-item label="手机" prop="mobile">
-          <el-input v-model="editUserForm.mobile"></el-input>
+        <el-form-item label="教研室负责人" prop="jcharge">
+          <el-input v-model="ModifyJiaoYanForm.jcharge"></el-input>
+        </el-form-item>
+        <el-form-item label="所属系" prop="dname">
+          <el-input v-model="ModifyJiaoYanForm.dname"></el-input>
         </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
         <el-button @click="editDialogVisible = false">取 消</el-button>
-        <el-button type="primary" @click="editUser">确 定</el-button>
+        <el-button type="primary" @click="ModifyJiaoYan">确 定</el-button>
       </span>
     </el-dialog>
 
@@ -169,7 +183,7 @@
 </template>
 
 <script>
-import axios from 'axios'
+// import axios from 'axios'
 export default {
   data () {
     // 自定义邮箱规则
@@ -199,19 +213,20 @@ export default {
         // 每页显示多少数据
         pagesize: 5
       },
-      userlist: [],
+      JiaoYanList: [],
       total: 0,
-      // 添加用户对话框
-      addDialogVisible: false,
+      // 创建教研室对话框
+      CreateDialogVisible: false,
       // 用户添加
-      addUserForm: {
-        username: '',
-        password: '',
-        email: '',
-        mobile: ''
+      CreateJiaoYanForm: {
+        jid: '',
+        jname: '',
+        jcharge: '',
+        dname: ''
+        // mobile: ''
       },
       // 用户添加表单验证规则
-      addUserFormRules: {
+      CreateJiaoYanFormRules: {
         username: [
           { required: true, message: '请输入用户名', trigger: 'blur' },
           {
@@ -239,11 +254,11 @@ export default {
           { validator: checkMobile, trigger: 'blur' }
         ]
       },
-      // 修改用户
+      // 修改教研室
       editDialogVisible: false,
-      editUserForm: {},
+      ModifyJiaoYanForm: {},
       // 编辑用户表单验证
-      editUserFormRules: {
+      ModifyJiaoYanFormRules: {
         email: [
           { required: true, message: '请输入邮箱', trigger: 'blur' },
           { validator: checkEmail, trigger: 'blur' }
@@ -264,13 +279,14 @@ export default {
     }
   },
   created () {
-    this.getUserList()
+    this.getJiaoYanList()
   },
   methods: {
-    async getUserList () {
-      const { data: res } = await axios.get('http://localhost:1234/users/', {
-        params: this.queryInfo
-      })
+    async getJiaoYanList () {
+      const { data: res } = await this.$http.get('getJiaoYanList', { params: this.queryInfo })
+      // const { data: res } = await axios.get('http://10.102.101.75:1234/getJiaoYanList/', {
+      //   params: this.queryInfo
+      // })
       // axios.get('http://127.0.0.1:1234/us')
       // const { data: res } = await this.$http.get('users', {
       //   params: this.queryInfo
@@ -278,22 +294,22 @@ export default {
       if (res.meta.status !== 200) {
         return this.$message.error('获取用户列表失败！')
       }
-      // console.log(res)
-      this.userlist = res.data.users
+      console.log(res)
+      this.JiaoYanList = res.data.JiaoYanList
       this.total = res.data.total
-      // console.log(this.userlist)
+      // console.log(this.JiaoYanList)
     },
     // 监听 pagesize改变的事件
     handleSizeChange (newSize) {
       // console.log(newSize)
       this.queryInfo.pagesize = newSize
-      this.getUserList()
+      this.getJiaoYanList()
     },
     // 监听 页码值 改变事件
     handleCurrentChange (newSize) {
       // console.log(newSize)
       this.queryInfo.pagenum = newSize
-      this.getUserList()
+      this.getJiaoYanList()
     },
     // 监听 switch开关 状态改变
     async userStateChanged (userInfo) {
@@ -307,67 +323,75 @@ export default {
       }
       this.$message.success('更新用户状态成功！')
     },
-    // 监听 添加用户对话框的关闭事件
-    addDialogClosed () {
-      this.$refs.addUserFormRef.resetFields()
+    // 监听 创建教研室对话框的关闭事件
+    CreateDialogClosed () {
+      this.$refs.CreateJiaoYanFormRef.resetFields()
     },
-    // 添加用户
-    addUser () {
+    // 创建教研室
+    CreateJiaoYan () {
       // 提交请求前，表单预验证
-      this.$refs.addUserFormRef.validate(async valid => {
+      this.$refs.CreateJiaoYanFormRef.validate(async valid => {
         // console.log(valid)
         // 表单预校验失败
         if (!valid) return
-        const { data: res } = await this.$http.post('users', this.addUserForm)
-        if (res.meta.status !== 201) {
-          this.$message.error('添加用户失败！')
+        const { data: res } = await this.$http.get('CreateJiaoYan', { params: this.CreateJiaoYanForm })
+        // const { data: res } = await axios.get('http://localhost:1234/CreateJiaoYan/', {
+        //   params: this.CreateJiaoYanForm
+        // })
+        if (res.meta.status === 200) {
+          this.$message.success('创建教研室成功！')
+        } else {
+          this.$message.error('创建教研室失败！')
         }
-        this.$message.success('添加用户成功！')
-        // 隐藏添加用户对话框
-        this.addDialogVisible = false
-        this.getUserList()
+        // 隐藏创建教研室对话框
+        this.CreateDialogVisible = false
+        this.getJiaoYanList()
       })
     },
     // 编辑用户信息
-    async showEditDialog (id) {
-      const { data: res } = await this.$http.get('users/' + id)
-      if (res.meta.status !== 200) {
-        return this.$message.error('查询用户信息失败！')
-      }
-      this.editUserForm = res.data
+    async showEditDialog (jid) {
+      // const { data: res } = await this.$http.get('users/' + jid)
+      // const { data: res } = await axios.get('http://localhost:1234/CreateJiaoYan/', {
+      //   params: this.CreateJiaoYanForm
+      // })
+      // if (res.meta.status !== 200) {
+      //   return this.$message.error('查询用户信息失败！')
+      // }
+      this.ModifyJiaoYanForm.jid = jid
       this.editDialogVisible = true
     },
-    // 监听修改用户对话框的关闭事件
+    // 监听修改教研室对话框的关闭事件
     editDialogClosed () {
-      this.$refs.editUserFormRef.resetFields()
+      this.$refs.ModifyJiaoYanFormRef.resetFields()
     },
-    // 修改用户信息
-    editUser () {
+    // 修改教研室信息
+    ModifyJiaoYan () {
       // 提交请求前，表单预验证
-      this.$refs.editUserFormRef.validate(async valid => {
+      this.$refs.ModifyJiaoYanFormRef.validate(async valid => {
         // console.log(valid)
         // 表单预校验失败
         if (!valid) return
-        const { data: res } = await this.$http.put(
-          'users/' + this.editUserForm.id,
-          {
-            email: this.editUserForm.email,
-            mobile: this.editUserForm.mobile
-          }
-        )
+        // const { data: res } = await this.$http.put(
+        //   'ModifyJiaoYan/' + this.ModifyJiaoYanForm
+        // )
+        const { data: res } = await this.$http.get('ModifyJiaoYan', { params: this.ModifyJiaoYanForm })
+        // const { data: res } = await axios.get('http://localhost:1234/ModifyJiaoYan/', {
+        //   params: this.ModifyJiaoYanForm
+        // })
         if (res.meta.status !== 200) {
-          this.$message.error('更新用户信息失败！')
+          this.$message.error('修改教研室信息失败！')
+        } else {
+          this.$message.success('修改教研室信息成功！')
         }
-        // 隐藏添加用户对话框
+        // 隐藏创建教研室对话框
         this.editDialogVisible = false
-        this.$message.success('更新用户信息成功！')
-        this.getUserList()
+        this.getJiaoYanList()
       })
     },
-    // 删除用户
-    async removeUserById (id) {
+    // 删除教研室
+    async delJiaoYan (jid) {
       const confirmResult = await this.$confirm(
-        '此操作将永久删除该用户, 是否继续?',
+        '此操作将永久删除该教研室, 是否继续?',
         '提示',
         {
           confirmButtonText: '确定',
@@ -380,10 +404,13 @@ export default {
       if (confirmResult !== 'confirm') {
         return this.$message.info('已取消删除')
       }
-      const { data: res } = await this.$http.delete('users/' + id)
-      if (res.meta.status !== 200) return this.$message.error('删除用户失败！')
-      this.$message.success('删除用户成功！')
-      this.getUserList()
+      const { data: res } = await this.$http.get('delJiaoYan', { params: { 'jid': jid } })
+      // const { data: res } = await axios.get('http://localhost:1234/delJiaoYan/', {
+      //   params: { 'jid': jid }
+      // })
+      if (res.meta.status !== 200) return this.$message.error('删除教研室失败！')
+      this.$message.success('删除教研室成功！')
+      this.getJiaoYanList()
     },
     // 展示分配角色的对话框
     async showSetRole (role) {
@@ -406,7 +433,7 @@ export default {
         return this.$message.error('更新用户角色失败！')
       }
       this.$message.success('更新角色成功！')
-      this.getUserList()
+      this.getJiaoYanList()
       this.setRoleDialogVisible = false
     },
     // 分配角色对话框关闭事件

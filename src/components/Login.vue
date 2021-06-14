@@ -35,6 +35,7 @@
 </template>
 
 <script>
+import axios from 'axios'
 export default {
   data () {
     return {
@@ -70,7 +71,8 @@ export default {
         if (!valid) return false
         // this.$http.post('login', this.loginForm): 返回值为promise
         // 返回值为promise，可加await简化操作 相应的也要加async
-        const { data: res } = await this.$http.post('login', this.loginForm)
+        const { data: res } = await axios.post('https://www.liulongbin.top:8888/api/private/v1/login', this.loginForm)
+        // const { data: res } = await this.$http.post('login', this.loginForm)
         // console.log(res)
         if (res.meta.status !== 200) return this.$message.error('登录失败')
         this.$message.success('登录成功')

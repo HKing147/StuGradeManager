@@ -46,7 +46,7 @@
 </template>
 
 <script>
-import axios from 'axios'
+// import axios from 'axios'
 export default {
   data () {
     return {
@@ -78,13 +78,13 @@ export default {
     // 获取请求菜单
     async getMenuList () {
       // const {data:res}
-      const { data: res } = await axios.get('http://localhost:1234/menu/')
-      console.log(res)
+      // const { data: res } = await axios.get('http://localhost:80/menu/')
+      // console.log(res)
       // axios.get("http://localhost:2345/menu.html")
-      // const { data: res } = await this.$http.get('menus')
+      const { data: res } = await this.$http.get('menu')
       if (res.meta.status !== 200) return this.$message.error(res.meta.msg)
       this.menuList = res.data
-      console.log(res)
+      // console.log(res)
     },
     // 菜单的折叠与展开
     togleCollapse () {

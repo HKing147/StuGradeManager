@@ -24,9 +24,10 @@
         <!-- stripe: 斑马条纹
         border：边框-->
         <el-table-column type="index" label="#"></el-table-column>
-        <el-table-column prop="DepartmentID" label="系编号"></el-table-column>
-        <el-table-column prop="DepartmentName" label="系名称"></el-table-column>
-        <el-table-column prop="DepartmentProfessor" label="系负责人"></el-table-column>
+        <el-table-column prop="did" label="系编号"></el-table-column>
+        <el-table-column prop="dname" label="系名称"></el-table-column>
+        <el-table-column prop="dcharge" label="系负责人"></el-table-column>
+        <el-table-column prop="cname" label="所属学院"></el-table-column>
         <!-- <el-table-column prop="role_name" label="角色"></el-table-column>
         <el-table-column label="状态">
           <template slot-scope="scope">
@@ -40,14 +41,14 @@
               icon="el-icon-edit"
               size="mini"
               circle
-              @click="showEditDialog(scope.row.DepartmentID)"
+              @click="showEditDialog(scope.row.did)"
             ></el-button>
             <el-button
               type="danger"
               icon="el-icon-delete"
               size="mini"
               circle
-              @click="delDepartment(scope.row.DepartmentID)"
+              @click="delDepartment(scope.row.did)"
             ></el-button>
             <el-tooltip
               class="item"
@@ -93,14 +94,17 @@
         :rules="CreateDepartmentFormRules"
         label-width="100px"
       > -->
-        <el-form-item label="系编号" prop="DepartmentID">
-          <el-input v-model="CreateDepartmentForm.DepartmentID"></el-input>
+        <el-form-item label="系编号" prop="did">
+          <el-input v-model="CreateDepartmentForm.did"></el-input>
         </el-form-item>
-        <el-form-item label="系名" prop="DepartmentName">
-          <el-input v-model="CreateDepartmentForm.DepartmentName"></el-input>
+        <el-form-item label="系名" prop="dname">
+          <el-input v-model="CreateDepartmentForm.dname"></el-input>
         </el-form-item>
-        <el-form-item label="系负责人" prop="DepartmentProfessor">
-          <el-input v-model="CreateDepartmentForm.DepartmentProfessor"></el-input>
+        <el-form-item label="系负责人" prop="dcharge">
+          <el-input v-model="CreateDepartmentForm.dcharge"></el-input>
+        </el-form-item>
+        <el-form-item label="所属学院" prop="cname">
+          <el-input v-model="CreateDepartmentForm.cname"></el-input>
         </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
@@ -128,14 +132,17 @@
         :rules="ModifyDepartmentFormRules"
         label-width="100px"
       > -->
-        <el-form-item label="系编号" pro="DepartmentID">
-          <el-input v-model="ModifyDepartmentForm.DepartmentID" disabled></el-input>
+        <el-form-item label="系编号" pro="did">
+          <el-input v-model="ModifyDepartmentForm.did" disabled></el-input>
         </el-form-item>
-        <el-form-item label="系名" prop="DepartmentName">
-          <el-input v-model="ModifyDepartmentForm.DepartmentName"></el-input>
+        <el-form-item label="系名" prop="dname">
+          <el-input v-model="ModifyDepartmentForm.dname"></el-input>
         </el-form-item>
-        <el-form-item label="系负责人" prop="DepartmentProfessor">
-          <el-input v-model="ModifyDepartmentForm.DepartmentProfessor"></el-input>
+        <el-form-item label="系负责人" prop="dcharge">
+          <el-input v-model="ModifyDepartmentForm.dcharge"></el-input>
+        </el-form-item>
+        <el-form-item label="所属学院" prop="cname">
+          <el-input v-model="ModifyDepartmentForm.cname"></el-input>
         </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
@@ -176,7 +183,7 @@
 </template>
 
 <script>
-import axios from 'axios'
+// import axios from 'axios'
 export default {
   data () {
     // 自定义邮箱规则
@@ -212,9 +219,10 @@ export default {
       CreateDialogVisible: false,
       // 用户添加
       CreateDepartmentForm: {
-        DepartmentID: '',
-        DepartmentName: '',
-        DepartmentProfessor: ''
+        did: '',
+        dname: '',
+        dcharge: '',
+        cname: ''
         // mobile: ''
       },
       // 用户添加表单验证规则
@@ -275,9 +283,10 @@ export default {
   },
   methods: {
     async getDepartmentList () {
-      const { data: res } = await axios.get('http://localhost:1234/getDepartmentList/', {
-        params: this.queryInfo
-      })
+      const { data: res } = await this.$http.get('getDepartmentList', { params: this.queryInfo })
+      // const { data: res } = await axios.get('http://10.102.101.75:1234/getDepartmentList/', {
+      //   params: this.queryInfo
+      // })
       // axios.get('http://127.0.0.1:1234/us')
       // const { data: res } = await this.$http.get('users', {
       //   params: this.queryInfo
@@ -286,7 +295,7 @@ export default {
         return this.$message.error('获取用户列表失败！')
       }
       console.log(res)
-      this.DepartmentList = res.data.Departmentlist
+      this.DepartmentList = res.data.DepartmentList
       this.total = res.data.total
       // console.log(this.DepartmentList)
     },
@@ -325,10 +334,10 @@ export default {
         // console.log(valid)
         // 表单预校验失败
         if (!valid) return
-        // const { data: res } = await this.$http.post('CreateDepartment', this.CreateDepartmentForm)
-        const { data: res } = await axios.get('http://localhost:1234/CreateDepartment/', {
-          params: this.CreateDepartmentForm
-        })
+        const { data: res } = await this.$http.get('CreateDepartment', { params: this.CreateDepartmentForm })
+        // const { data: res } = await axios.get('http://localhost:1234/CreateDepartment/', {
+        //   params: this.CreateDepartmentForm
+        // })
         if (res.meta.status === 200) {
           this.$message.success('创建系成功！')
         } else {
@@ -340,15 +349,15 @@ export default {
       })
     },
     // 编辑用户信息
-    async showEditDialog (DepartmentID) {
-      // const { data: res } = await this.$http.get('users/' + DepartmentID)
+    async showEditDialog (did) {
+      // const { data: res } = await this.$http.get('users/' + did)
       // const { data: res } = await axios.get('http://localhost:1234/CreateDepartment/', {
       //   params: this.CreateDepartmentForm
       // })
       // if (res.meta.status !== 200) {
       //   return this.$message.error('查询用户信息失败！')
       // }
-      this.ModifyDepartmentForm.DepartmentID = DepartmentID
+      this.ModifyDepartmentForm.did = did
       this.editDialogVisible = true
     },
     // 监听修改系对话框的关闭事件
@@ -365,9 +374,10 @@ export default {
         // const { data: res } = await this.$http.put(
         //   'ModifyDepartment/' + this.ModifyDepartmentForm
         // )
-        const { data: res } = await axios.get('http://localhost:1234/ModifyDepartment/', {
-          params: this.ModifyDepartmentForm
-        })
+        const { data: res } = await this.$http.get('ModifyDepartment', { params: this.ModifyDepartmentForm })
+        // const { data: res } = await axios.get('http://localhost:1234/ModifyDepartment/', {
+        //   params: this.ModifyDepartmentForm
+        // })
         if (res.meta.status !== 200) {
           this.$message.error('修改系信息失败！')
         } else {
@@ -379,7 +389,7 @@ export default {
       })
     },
     // 删除系
-    async delDepartment (DepartmentID) {
+    async delDepartment (did) {
       const confirmResult = await this.$confirm(
         '此操作将永久删除该系, 是否继续?',
         '提示',
@@ -394,10 +404,10 @@ export default {
       if (confirmResult !== 'confirm') {
         return this.$message.info('已取消删除')
       }
-      // const { data: res } = await this.$http.delete('delDepartment/' + DepartmentID)
-      const { data: res } = await axios.get('http://localhost:1234/delDepartment/', {
-        params: { 'DepartmentID': DepartmentID }
-      })
+      const { data: res } = await this.$http.get('delDepartment', { params: { 'did': did } })
+      // const { data: res } = await axios.get('http://localhost:1234/delDepartment/', {
+      //   params: { 'did': did }
+      // })
       if (res.meta.status !== 200) return this.$message.error('删除系失败！')
       this.$message.success('删除系成功！')
       this.getDepartmentList()

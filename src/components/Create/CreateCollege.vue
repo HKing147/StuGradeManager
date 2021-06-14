@@ -11,8 +11,8 @@
       <!-- 搜索 添加 -->
       <el-row :gutter="20">
         <el-col :span="6">
-          <el-input placeholder="请输入内容" v-model="queryInfo.query" clearable @clear="getAcadamyList">
-            <el-button slot="append" icon="el-icon-search" @click="getAcadamyList"></el-button>
+          <el-input placeholder="请输入内容" v-model="queryInfo.query" clearable @clear="getCollegeList">
+            <el-button slot="append" icon="el-icon-search" @click="getCollegeList"></el-button>
           </el-input>
         </el-col>
         <el-col :span="4">
@@ -20,13 +20,13 @@
         </el-col>
       </el-row>
       <!-- 用户列表区域 -->
-      <el-table :data="AcadamyList" border stripe>
+      <el-table :data="CollegeList" border stripe>
         <!-- stripe: 斑马条纹
         border：边框-->
         <el-table-column type="index" label="#"></el-table-column>
-        <el-table-column prop="AcadamyID" label="学院编号"></el-table-column>
-        <el-table-column prop="AcadamyName" label="学院名称"></el-table-column>
-        <el-table-column prop="AcadamyProfessor" label="学院负责人"></el-table-column>
+        <el-table-column prop="cid" label="学院编号"></el-table-column>
+        <el-table-column prop="cname" label="学院名称"></el-table-column>
+        <el-table-column prop="ccharge" label="学院负责人"></el-table-column>
         <!-- <el-table-column prop="role_name" label="角色"></el-table-column>
         <el-table-column label="状态">
           <template slot-scope="scope">
@@ -40,14 +40,14 @@
               icon="el-icon-edit"
               size="mini"
               circle
-              @click="showEditDialog(scope.row.AcadamyID)"
+              @click="showEditDialog(scope.row.cid)"
             ></el-button>
             <el-button
               type="danger"
               icon="el-icon-delete"
               size="mini"
               circle
-              @click="delAcadamy(scope.row.AcadamyID)"
+              @click="delCollege(scope.row.cid)"
             ></el-button>
             <el-tooltip
               class="item"
@@ -83,29 +83,29 @@
     <el-dialog title="创建学院" :visible.sync="CreateDialogVisible" width="50%" @close="CreateDialogClosed">
       <!-- 内容主体 -->
       <el-form
-        :model="CreateAcadamyForm"
-        ref="CreateAcadamyFormRef"
+        :model="CreateCollegeForm"
+        ref="CreateCollegeFormRef"
         label-width="100px"
       >
       <!-- <el-form
-        :model="CreateAcadamyForm"
-        ref="CreateAcadamyFormRef"
-        :rules="CreateAcadamyFormRules"
+        :model="CreateCollegeForm"
+        ref="CreateCollegeFormRef"
+        :rules="CreateCollegeFormRules"
         label-width="100px"
       > -->
-        <el-form-item label="学院编号" prop="AcadamyID">
-          <el-input v-model="CreateAcadamyForm.AcadamyID"></el-input>
+        <el-form-item label="学院编号" prop="cid">
+          <el-input v-model="CreateCollegeForm.cid"></el-input>
         </el-form-item>
-        <el-form-item label="学院名" prop="AcadamyName">
-          <el-input v-model="CreateAcadamyForm.AcadamyName"></el-input>
+        <el-form-item label="学院名" prop="cname">
+          <el-input v-model="CreateCollegeForm.cname"></el-input>
         </el-form-item>
-        <el-form-item label="学院负责人" prop="AcadamyProfessor">
-          <el-input v-model="CreateAcadamyForm.AcadamyProfessor"></el-input>
+        <el-form-item label="学院负责人" prop="ccharge">
+          <el-input v-model="CreateCollegeForm.ccharge"></el-input>
         </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
         <el-button @click="CreateDialogVisible = false">取 消</el-button>
-        <el-button type="primary" @click="CreateAcadamy">确 定</el-button>
+        <el-button type="primary" @click="CreateCollege">确 定</el-button>
       </span>
     </el-dialog>
 
@@ -118,29 +118,29 @@
     >
       <!-- 内容主体 -->
       <el-form
-        :model="ModifyAcadamyForm"
-        ref="ModifyAcadamyFormRef"
+        :model="ModifyCollegeForm"
+        ref="ModifyCollegeFormRef"
         label-width="100px"
       >
       <!-- <el-form
-        :model="ModifyAcadamyForm"
-        ref="ModifyAcadamyFormRef"
-        :rules="ModifyAcadamyFormRules"
+        :model="ModifyCollegeForm"
+        ref="ModifyCollegeFormRef"
+        :rules="ModifyCollegeFormRules"
         label-width="100px"
       > -->
-        <el-form-item label="学院编号" pro="AcadamyID">
-          <el-input v-model="ModifyAcadamyForm.AcadamyID" disabled></el-input>
+        <el-form-item label="学院编号" pro="cid">
+          <el-input v-model="ModifyCollegeForm.cid" disabled></el-input>
         </el-form-item>
-        <el-form-item label="学院名" prop="AcadamyName">
-          <el-input v-model="ModifyAcadamyForm.AcadamyName"></el-input>
+        <el-form-item label="学院名" prop="cname">
+          <el-input v-model="ModifyCollegeForm.cname"></el-input>
         </el-form-item>
-        <el-form-item label="学院负责人" prop="AcadamyProfessor">
-          <el-input v-model="ModifyAcadamyForm.AcadamyProfessor"></el-input>
+        <el-form-item label="学院负责人" prop="ccharge">
+          <el-input v-model="ModifyCollegeForm.ccharge"></el-input>
         </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
         <el-button @click="editDialogVisible = false">取 消</el-button>
-        <el-button type="primary" @click="ModifyAcadamy">确 定</el-button>
+        <el-button type="primary" @click="ModifyCollege">确 定</el-button>
       </span>
     </el-dialog>
 
@@ -176,7 +176,7 @@
 </template>
 
 <script>
-import axios from 'axios'
+// import axios from 'axios'
 export default {
   data () {
     // 自定义邮箱规则
@@ -206,19 +206,19 @@ export default {
         // 每页显示多少数据
         pagesize: 5
       },
-      AcadamyList: [],
+      CollegeList: [],
       total: 0,
       // 创建学院对话框
       CreateDialogVisible: false,
       // 用户添加
-      CreateAcadamyForm: {
-        AcadamyID: '',
-        AcadamyName: '',
-        AcadamyProfessor: ''
+      CreateCollegeForm: {
+        cid: '',
+        cname: '',
+        ccharge: ''
         // mobile: ''
       },
       // 用户添加表单验证规则
-      CreateAcadamyFormRules: {
+      CreateCollegeFormRules: {
         username: [
           { required: true, message: '请输入用户名', trigger: 'blur' },
           {
@@ -248,9 +248,9 @@ export default {
       },
       // 修改学院
       editDialogVisible: false,
-      ModifyAcadamyForm: {},
+      ModifyCollegeForm: {},
       // 编辑用户表单验证
-      ModifyAcadamyFormRules: {
+      ModifyCollegeFormRules: {
         email: [
           { required: true, message: '请输入邮箱', trigger: 'blur' },
           { validator: checkEmail, trigger: 'blur' }
@@ -271,13 +271,14 @@ export default {
     }
   },
   created () {
-    this.getAcadamyList()
+    this.getCollegeList()
   },
   methods: {
-    async getAcadamyList () {
-      const { data: res } = await axios.get('http://localhost:1234/getAcadamyList/', {
-        params: this.queryInfo
-      })
+    async getCollegeList () {
+      const { data: res } = await this.$http.get('getCollegeList', { params: this.queryInfo })
+      // const { data: res } = await axios.get('http://127.0.0.1:5678/getCollegeList', {
+      //   params: this.queryInfo
+      // })
       // axios.get('http://127.0.0.1:1234/us')
       // const { data: res } = await this.$http.get('users', {
       //   params: this.queryInfo
@@ -285,22 +286,22 @@ export default {
       if (res.meta.status !== 200) {
         return this.$message.error('获取用户列表失败！')
       }
-      console.log(res)
-      this.AcadamyList = res.data.acadamylist
+      // console.log(res)
+      this.CollegeList = res.data.CollegeList
       this.total = res.data.total
-      // console.log(this.AcadamyList)
+      // console.log(this.CollegeList)
     },
     // 监听 pagesize改变的事件
     handleSizeChange (newSize) {
       // console.log(newSize)
       this.queryInfo.pagesize = newSize
-      this.getAcadamyList()
+      this.getCollegeList()
     },
     // 监听 页码值 改变事件
     handleCurrentChange (newSize) {
       // console.log(newSize)
       this.queryInfo.pagenum = newSize
-      this.getAcadamyList()
+      this.getCollegeList()
     },
     // 监听 switch开关 状态改变
     async userStateChanged (userInfo) {
@@ -316,19 +317,19 @@ export default {
     },
     // 监听 创建学院对话框的关闭事件
     CreateDialogClosed () {
-      this.$refs.CreateAcadamyFormRef.resetFields()
+      this.$refs.CreateCollegeFormRef.resetFields()
     },
     // 创建学院
-    CreateAcadamy () {
+    CreateCollege () {
       // 提交请求前，表单预验证
-      this.$refs.CreateAcadamyFormRef.validate(async valid => {
+      this.$refs.CreateCollegeFormRef.validate(async valid => {
         // console.log(valid)
         // 表单预校验失败
         if (!valid) return
-        // const { data: res } = await this.$http.post('CreateAcadamy', this.CreateAcadamyForm)
-        const { data: res } = await axios.get('http://localhost:1234/CreateAcadamy/', {
-          params: this.CreateAcadamyForm
-        })
+        const { data: res } = await this.$http.get('CreateCollege', { params: this.CreateCollegeForm })
+        // const { data: res } = await axios.get('http://localhost:80/CreateCollege/', {
+        //   params: this.CreateCollegeForm
+        // })
         if (res.meta.status === 200) {
           this.$message.success('创建学院成功！')
         } else {
@@ -336,38 +337,39 @@ export default {
         }
         // 隐藏创建学院对话框
         this.CreateDialogVisible = false
-        this.getAcadamyList()
+        this.getCollegeList()
       })
     },
     // 编辑用户信息
-    async showEditDialog (AcadamyID) {
-      // const { data: res } = await this.$http.get('users/' + AcadamyID)
-      // const { data: res } = await axios.get('http://localhost:1234/CreateAcadamy/', {
-      //   params: this.CreateAcadamyForm
+    async showEditDialog (cid) {
+      // const { data: res } = await this.$http.get('users/' + cid)
+      // const { data: res } = await axios.get('http://localhost:80/CreateCollege/', {
+      //   params: this.CreateCollegeForm
       // })
       // if (res.meta.status !== 200) {
       //   return this.$message.error('查询用户信息失败！')
       // }
-      this.ModifyAcadamyForm.AcadamyID = AcadamyID
+      this.ModifyCollegeForm.cid = cid
       this.editDialogVisible = true
     },
     // 监听修改学院对话框的关闭事件
     editDialogClosed () {
-      this.$refs.ModifyAcadamyFormRef.resetFields()
+      this.$refs.ModifyCollegeFormRef.resetFields()
     },
     // 修改学院信息
-    ModifyAcadamy () {
+    ModifyCollege () {
       // 提交请求前，表单预验证
-      this.$refs.ModifyAcadamyFormRef.validate(async valid => {
+      this.$refs.ModifyCollegeFormRef.validate(async valid => {
         // console.log(valid)
         // 表单预校验失败
         if (!valid) return
         // const { data: res } = await this.$http.put(
-        //   'ModifyAcadamy/' + this.ModifyAcadamyForm
+        //   'ModifyCollege/' + this.ModifyCollegeForm
         // )
-        const { data: res } = await axios.get('http://localhost:1234/ModifyAcadamy/', {
-          params: this.ModifyAcadamyForm
-        })
+        const { data: res } = await this.$http.get('ModifyCollege', { params: this.ModifyCollegeForm })
+        // const { data: res } = await axios.get('http://localhost:80/ModifyCollege/', {
+        //   params: this.ModifyCollegeForm
+        // })
         if (res.meta.status !== 200) {
           this.$message.error('修改学院信息失败！')
         } else {
@@ -375,11 +377,11 @@ export default {
         }
         // 隐藏创建学院对话框
         this.editDialogVisible = false
-        this.getAcadamyList()
+        this.getCollegeList()
       })
     },
     // 删除学院
-    async delAcadamy (AcadamyID) {
+    async delCollege (cid) {
       const confirmResult = await this.$confirm(
         '此操作将永久删除该学院, 是否继续?',
         '提示',
@@ -394,13 +396,13 @@ export default {
       if (confirmResult !== 'confirm') {
         return this.$message.info('已取消删除')
       }
-      // const { data: res } = await this.$http.delete('delAcadamy/' + AcadamyID)
-      const { data: res } = await axios.get('http://localhost:1234/delAcadamy/', {
-        params: { 'AcadamyID': AcadamyID }
-      })
+      const { data: res } = await this.$http.get('delCollege', { params: { 'cid': cid } })
+      // const { data: res } = await axios.get('http://localhost:80/delCollege/', {
+      //   params: { 'cid': cid }
+      // })
       if (res.meta.status !== 200) return this.$message.error('删除学院失败！')
       this.$message.success('删除学院成功！')
-      this.getAcadamyList()
+      this.getCollegeList()
     },
     // 展示分配角色的对话框
     async showSetRole (role) {
@@ -423,7 +425,7 @@ export default {
         return this.$message.error('更新用户角色失败！')
       }
       this.$message.success('更新角色成功！')
-      this.getAcadamyList()
+      this.getCollegeList()
       this.setRoleDialogVisible = false
     },
     // 分配角色对话框关闭事件

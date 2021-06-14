@@ -37,9 +37,9 @@ const Order = () => import(/* webpackChunkName: "Order_Report" */ '../components
 const Report = () => import(/* webpackChunkName: "Order_Report" */ '../components/report/Report.vue')
 // 自己写的
 /* 创建 */
-const CreateAcadamy = () => import(/* webpackChunkName: "Create" */ '../components/Create/CreateAcadamy')
+const CreateCollege = () => import(/* webpackChunkName: "Create" */ '../components/Create/CreateCollege')
 const CreateDepartment = () => import(/* webpackChunkName: "Create" */ '../components/Create/CreateDepartment')
-const CreateTRO = () => import(/* webpackChunkName: "Create" */ '../components/Create/CreateTRO')
+const CreateJiaoYan = () => import(/* webpackChunkName: "Create" */ '../components/Create/CreateJiaoYan')
 const CreateClass = () => import(/* webpackChunkName: "Create" */ '../components/Create/CreateClass')
 /* 录入 */
 const InputTea = () => import(/* webpackChunkName: "Input" */ '../components/Input/InputTea')
@@ -74,9 +74,9 @@ const routes = [
       { path: '/reports', component: Report },
       // 自己写的
       /* 创建 */
-      { path: '/CreateAcadamy', component: CreateAcadamy },
+      { path: '/CreateCollege', component: CreateCollege },
       { path: '/CreateDepartment', component: CreateDepartment },
-      { path: '/CreateTRO', component: CreateTRO },
+      { path: '/CreateJiaoYan', component: CreateJiaoYan },
       { path: '/CreateClass', component: CreateClass },
       /* 录入 */
       { path: '/InputTea', component: InputTea },

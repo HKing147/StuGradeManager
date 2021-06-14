@@ -3,36 +3,37 @@
     <!-- 面包屑导航区 -->
     <el-breadcrumb separator-class="el-icon-arrow-right">
       <el-breadcrumb-item :to="{ path: '/home' }">首页</el-breadcrumb-item>
-      <el-breadcrumb-item>用户管理</el-breadcrumb-item>
-      <el-breadcrumb-item>用户列表</el-breadcrumb-item>
+      <el-breadcrumb-item>班级管理</el-breadcrumb-item>
+      <el-breadcrumb-item>班级列表</el-breadcrumb-item>
     </el-breadcrumb>
     <!-- 卡片视图 -->
     <el-card>
       <!-- 搜索 添加 -->
       <el-row :gutter="20">
         <el-col :span="6">
-          <el-input placeholder="请输入内容" v-model="queryInfo.query" clearable @clear="getUserList">
-            <el-button slot="append" icon="el-icon-search" @click="getUserList"></el-button>
+          <el-input placeholder="请输入内容" v-model="queryInfo.query" clearable @clear="getClassList">
+            <el-button slot="append" icon="el-icon-search" @click="getClassList"></el-button>
           </el-input>
         </el-col>
         <el-col :span="4">
-          <el-button type="primary" @click="addDialogVisible = true">添加用户</el-button>
+          <el-button type="primary" @click="CreateDialogVisible = true">创建班级</el-button>
         </el-col>
       </el-row>
       <!-- 用户列表区域 -->
-      <el-table :data="userlist" border stripe>
+      <el-table :data="ClassList" border stripe>
         <!-- stripe: 斑马条纹
         border：边框-->
         <el-table-column type="index" label="#"></el-table-column>
-        <el-table-column prop="username" label="姓名"></el-table-column>
-        <el-table-column prop="email" label="邮箱"></el-table-column>
-        <el-table-column prop="mobile" label="电话"></el-table-column>
-        <el-table-column prop="role_name" label="角色"></el-table-column>
+        <el-table-column prop="cid" label="班级编号"></el-table-column>
+        <el-table-column prop="cname" label="班级名称"></el-table-column>
+        <!-- <el-table-column prop="jcharge" label="班级负责人"></el-table-column> -->
+        <el-table-column prop="dname" label="所属系"></el-table-column>
+        <!-- <el-table-column prop="role_name" label="角色"></el-table-column>
         <el-table-column label="状态">
           <template slot-scope="scope">
             <el-switch v-model="scope.row.mg_state" @change="userStateChanged(scope.row)"></el-switch>
           </template>
-        </el-table-column>
+        </el-table-column> -->
         <el-table-column label="操作">
           <template slot-scope="scope">
             <el-button
@@ -40,14 +41,14 @@
               icon="el-icon-edit"
               size="mini"
               circle
-              @click="showEditDialog(scope.row.id)"
+              @click="showEditDialog(scope.row.cid)"
             ></el-button>
             <el-button
               type="danger"
               icon="el-icon-delete"
               size="mini"
               circle
-              @click="removeUserById(scope.row.id)"
+              @click="delClass(scope.row.cid)"
             ></el-button>
             <el-tooltip
               class="item"
@@ -79,61 +80,74 @@
       ></el-pagination>
     </el-card>
 
-    <!-- 添加用户的对话框 -->
-    <el-dialog title="添加用户" :visible.sync="addDialogVisible" width="50%" @close="addDialogClosed">
+    <!-- 创建班级的对话框 -->
+    <el-dialog title="创建班级" :visible.sync="CreateDialogVisible" width="50%" @close="CreateDialogClosed">
       <!-- 内容主体 -->
       <el-form
-        :model="addUserForm"
-        ref="addUserFormRef"
-        :rules="addUserFormRules"
+        :model="CreateClassForm"
+        ref="CreateClassFormRef"
         label-width="100px"
       >
-        <el-form-item label="用户名" prop="username">
-          <el-input v-model="addUserForm.username"></el-input>
+      <!-- <el-form
+        :model="CreateClassForm"
+        ref="CreateClassFormRef"
+        :rules="CreateClassFormRules"
+        label-width="100px"
+      > -->
+        <el-form-item label="班级编号" prop="cid">
+          <el-input v-model="CreateClassForm.cid"></el-input>
         </el-form-item>
-        <el-form-item label="密码" prop="password">
-          <el-input v-model="addUserForm.password"></el-input>
+        <el-form-item label="班级名" prop="cname">
+          <el-input v-model="CreateClassForm.cname"></el-input>
         </el-form-item>
-        <el-form-item label="邮箱" prop="email">
-          <el-input v-model="addUserForm.email"></el-input>
-        </el-form-item>
-        <el-form-item label="手机" prop="mobile">
-          <el-input v-model="addUserForm.mobile"></el-input>
+        <!-- <el-form-item label="班级负责人" prop="jcharge">
+          <el-input v-model="CreateClassForm.jcharge"></el-input>
+        </el-form-item> -->
+        <el-form-item label="所属系" prop="dname">
+          <el-input v-model="CreateClassForm.dname"></el-input>
         </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
-        <el-button @click="addDialogVisible = false">取 消</el-button>
-        <el-button type="primary" @click="addUser">确 定</el-button>
+        <el-button @click="CreateDialogVisible = false">取 消</el-button>
+        <el-button type="primary" @click="CreateClass">确 定</el-button>
       </span>
     </el-dialog>
 
-    <!-- 修改用户的对话框 -->
+    <!-- 修改班级的对话框 -->
     <el-dialog
-      title="修改用户信息"
+      title="修改班级信息"
       :visible.sync="editDialogVisible"
       width="50%"
       @close="editDialogClosed"
     >
       <!-- 内容主体 -->
       <el-form
-        :model="editUserForm"
-        ref="editUserFormRef"
-        :rules="editUserFormRules"
-        label-width="70px"
+        :model="ModifyClassForm"
+        ref="ModifyClassFormRef"
+        label-width="100px"
       >
-        <el-form-item label="用户名">
-          <el-input v-model="editUserForm.username" disabled></el-input>
+      <!-- <el-form
+        :model="ModifyClassForm"
+        ref="ModifyClassFormRef"
+        :rules="ModifyClassFormRules"
+        label-width="100px"
+      > -->
+        <el-form-item label="班级编号" pro="cid">
+          <el-input v-model="ModifyClassForm.cid" disabled></el-input>
         </el-form-item>
-        <el-form-item label="邮箱" prop="email">
-          <el-input v-model="editUserForm.email"></el-input>
+        <el-form-item label="班级名" prop="cname">
+          <el-input v-model="ModifyClassForm.cname"></el-input>
         </el-form-item>
-        <el-form-item label="手机" prop="mobile">
-          <el-input v-model="editUserForm.mobile"></el-input>
+        <!-- <el-form-item label="班级负责人" prop="jcharge">
+          <el-input v-model="ModifyClassForm.jcharge"></el-input>
+        </el-form-item> -->
+        <el-form-item label="所属系" prop="dname">
+          <el-input v-model="ModifyClassForm.dname"></el-input>
         </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
         <el-button @click="editDialogVisible = false">取 消</el-button>
-        <el-button type="primary" @click="editUser">确 定</el-button>
+        <el-button type="primary" @click="ModifyClass">确 定</el-button>
       </span>
     </el-dialog>
 
@@ -169,7 +183,7 @@
 </template>
 
 <script>
-import axios from 'axios'
+// import axios from 'axios'
 export default {
   data () {
     // 自定义邮箱规则
@@ -199,19 +213,19 @@ export default {
         // 每页显示多少数据
         pagesize: 5
       },
-      userlist: [],
+      ClassList: [],
       total: 0,
-      // 添加用户对话框
-      addDialogVisible: false,
+      // 创建班级对话框
+      CreateDialogVisible: false,
       // 用户添加
-      addUserForm: {
-        username: '',
-        password: '',
-        email: '',
-        mobile: ''
+      CreateClassForm: {
+        cid: '',
+        cname: '',
+        dname: ''
+        // mobile: ''
       },
       // 用户添加表单验证规则
-      addUserFormRules: {
+      CreateClassFormRules: {
         username: [
           { required: true, message: '请输入用户名', trigger: 'blur' },
           {
@@ -239,11 +253,11 @@ export default {
           { validator: checkMobile, trigger: 'blur' }
         ]
       },
-      // 修改用户
+      // 修改班级
       editDialogVisible: false,
-      editUserForm: {},
+      ModifyClassForm: {},
       // 编辑用户表单验证
-      editUserFormRules: {
+      ModifyClassFormRules: {
         email: [
           { required: true, message: '请输入邮箱', trigger: 'blur' },
           { validator: checkEmail, trigger: 'blur' }
@@ -264,13 +278,14 @@ export default {
     }
   },
   created () {
-    this.getUserList()
+    this.getClassList()
   },
   methods: {
-    async getUserList () {
-      const { data: res } = await axios.get('http://localhost:1234/users/', {
-        params: this.queryInfo
-      })
+    async getClassList () {
+      const { data: res } = await this.$http.get('getClassList', { params: this.queryInfo })
+      // const { data: res } = await axios.get('http://10.102.101.75:1234/getClassList/', {
+      //   params: this.queryInfo
+      // })
       // axios.get('http://127.0.0.1:1234/us')
       // const { data: res } = await this.$http.get('users', {
       //   params: this.queryInfo
@@ -278,22 +293,22 @@ export default {
       if (res.meta.status !== 200) {
         return this.$message.error('获取用户列表失败！')
       }
-      // console.log(res)
-      this.userlist = res.data.users
+      console.log(res)
+      this.ClassList = res.data.ClassList
       this.total = res.data.total
-      // console.log(this.userlist)
+      // console.log(this.ClassList)
     },
     // 监听 pagesize改变的事件
     handleSizeChange (newSize) {
       // console.log(newSize)
       this.queryInfo.pagesize = newSize
-      this.getUserList()
+      this.getClassList()
     },
     // 监听 页码值 改变事件
     handleCurrentChange (newSize) {
       // console.log(newSize)
       this.queryInfo.pagenum = newSize
-      this.getUserList()
+      this.getClassList()
     },
     // 监听 switch开关 状态改变
     async userStateChanged (userInfo) {
@@ -307,67 +322,75 @@ export default {
       }
       this.$message.success('更新用户状态成功！')
     },
-    // 监听 添加用户对话框的关闭事件
-    addDialogClosed () {
-      this.$refs.addUserFormRef.resetFields()
+    // 监听 创建班级对话框的关闭事件
+    CreateDialogClosed () {
+      this.$refs.CreateClassFormRef.resetFields()
     },
-    // 添加用户
-    addUser () {
+    // 创建班级
+    CreateClass () {
       // 提交请求前，表单预验证
-      this.$refs.addUserFormRef.validate(async valid => {
+      this.$refs.CreateClassFormRef.validate(async valid => {
         // console.log(valid)
         // 表单预校验失败
         if (!valid) return
-        const { data: res } = await this.$http.post('users', this.addUserForm)
-        if (res.meta.status !== 201) {
-          this.$message.error('添加用户失败！')
+        const { data: res } = await this.$http.get('CreateClass', { params: this.CreateClassForm })
+        // const { data: res } = await axios.get('http://localhost:1234/CreateClass/', {
+        //   params: this.CreateClassForm
+        // })
+        if (res.meta.status === 200) {
+          this.$message.success('创建班级成功！')
+        } else {
+          this.$message.error('创建班级失败！')
         }
-        this.$message.success('添加用户成功！')
-        // 隐藏添加用户对话框
-        this.addDialogVisible = false
-        this.getUserList()
+        // 隐藏创建班级对话框
+        this.CreateDialogVisible = false
+        this.getClassList()
       })
     },
     // 编辑用户信息
-    async showEditDialog (id) {
-      const { data: res } = await this.$http.get('users/' + id)
-      if (res.meta.status !== 200) {
-        return this.$message.error('查询用户信息失败！')
-      }
-      this.editUserForm = res.data
+    async showEditDialog (cid) {
+      // const { data: res } = await this.$http.get('users/' + cid)
+      // const { data: res } = await axios.get('http://localhost:1234/CreateClass/', {
+      //   params: this.CreateClassForm
+      // })
+      // if (res.meta.status !== 200) {
+      //   return this.$message.error('查询用户信息失败！')
+      // }
+      this.ModifyClassForm.cid = cid
       this.editDialogVisible = true
     },
-    // 监听修改用户对话框的关闭事件
+    // 监听修改班级对话框的关闭事件
     editDialogClosed () {
-      this.$refs.editUserFormRef.resetFields()
+      this.$refs.ModifyClassFormRef.resetFields()
     },
-    // 修改用户信息
-    editUser () {
+    // 修改班级信息
+    ModifyClass () {
       // 提交请求前，表单预验证
-      this.$refs.editUserFormRef.validate(async valid => {
+      this.$refs.ModifyClassFormRef.validate(async valid => {
         // console.log(valid)
         // 表单预校验失败
         if (!valid) return
-        const { data: res } = await this.$http.put(
-          'users/' + this.editUserForm.id,
-          {
-            email: this.editUserForm.email,
-            mobile: this.editUserForm.mobile
-          }
-        )
+        // const { data: res } = await this.$http.put(
+        //   'ModifyClass/' + this.ModifyClassForm
+        // )
+        const { data: res } = await this.$http.get('ModifyClass', { params: this.ModifyClassForm })
+        // const { data: res } = await axios.get('http://localhost:1234/ModifyClass/', {
+        //   params: this.ModifyClassForm
+        // })
         if (res.meta.status !== 200) {
-          this.$message.error('更新用户信息失败！')
+          this.$message.error('修改班级信息失败！')
+        } else {
+          this.$message.success('修改班级信息成功！')
         }
-        // 隐藏添加用户对话框
+        // 隐藏创建班级对话框
         this.editDialogVisible = false
-        this.$message.success('更新用户信息成功！')
-        this.getUserList()
+        this.getClassList()
       })
     },
-    // 删除用户
-    async removeUserById (id) {
+    // 删除班级
+    async delClass (cid) {
       const confirmResult = await this.$confirm(
-        '此操作将永久删除该用户, 是否继续?',
+        '此操作将永久删除该班级, 是否继续?',
         '提示',
         {
           confirmButtonText: '确定',
@@ -380,10 +403,13 @@ export default {
       if (confirmResult !== 'confirm') {
         return this.$message.info('已取消删除')
       }
-      const { data: res } = await this.$http.delete('users/' + id)
-      if (res.meta.status !== 200) return this.$message.error('删除用户失败！')
-      this.$message.success('删除用户成功！')
-      this.getUserList()
+      const { data: res } = await this.$http.get('delClass', { params: { 'cid': cid } })
+      // const { data: res } = await axios.get('http://localhost:1234/delClass/', {
+      //   params: { 'cid': cid }
+      // })
+      if (res.meta.status !== 200) return this.$message.error('删除班级失败！')
+      this.$message.success('删除班级成功！')
+      this.getClassList()
     },
     // 展示分配角色的对话框
     async showSetRole (role) {
@@ -406,7 +432,7 @@ export default {
         return this.$message.error('更新用户角色失败！')
       }
       this.$message.success('更新角色成功！')
-      this.getUserList()
+      this.getClassList()
       this.setRoleDialogVisible = false
     },
     // 分配角色对话框关闭事件
