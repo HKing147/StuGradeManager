@@ -3,205 +3,395 @@
     <!-- 面包屑导航区 -->
     <el-breadcrumb separator-class="el-icon-arrow-right">
       <el-breadcrumb-item :to="{ path: '/home' }">首页</el-breadcrumb-item>
-      <el-breadcrumb-item>权限管理</el-breadcrumb-item>
-      <el-breadcrumb-item>角色列表</el-breadcrumb-item>
+      <el-breadcrumb-item>学生成绩管理</el-breadcrumb-item>
+      <el-breadcrumb-item>学生成绩列表</el-breadcrumb-item>
     </el-breadcrumb>
     <!-- 卡片视图 -->
     <el-card>
-      <!-- 添加角色按钮 -->
-      <el-row>
-        <el-col>
-          <el-button type="primary" @click="AddRoleDialogVisible=true">添加角色</el-button>
+      <!-- 搜索 添加 -->
+      <el-row :gutter="20">
+        <el-col :span="6">
+          <el-input placeholder="请输入内容" v-model="queryInfo.query" clearable @clear="getGradeList">
+            <el-button slot="append" icon="el-icon-search" @click="getGradeList"></el-button>
+          </el-input>
+        </el-col>
+        <el-col :span="4">
+          <el-button type="primary" @click="InputDialogVisible = true">录入学生成绩</el-button>
         </el-col>
       </el-row>
-      <!-- 角色列表 -->
-      <el-table :data="rolesList" border stripe>
-        <!-- 展开列 -->
-        <el-table-column type="expand">
-          <template slot-scope="scope">
-            <el-row
-              :class="['bdbottom', i1 === 0 ? 'bdtop' : '', 'vcenter']"
-              v-for="(item1, i1) in scope.row.children"
-              :key="item1.id"
-            >
-              <!-- 一级权限 -->
-              <el-col :span="5">
-                <el-tag closable @close="removeRightById(scope.row, item1.id)">{{ item1.authName}}</el-tag>
-                <i class="el-icon-caret-right"></i>
-              </el-col>
-              <!-- 二级和三级 -->
-              <el-col :span="19">
-                <!-- 通过for循环 渲染二级权限 -->
-                <el-row
-                  :class="[i2 === 0 ? '' : 'bdtop', 'vcenter']"
-                  v-for="(item2, i2) in item1.children"
-                  :key="item2.id"
-                >
-                  <el-col :span="6 ">
-                    <el-tag
-                      type="success"
-                      closable
-                      @close="removeRightById(scope.row, item2.id)"
-                    >{{ item2.authName }}</el-tag>
-                    <i class="el-icon-caret-right"></i>
-                  </el-col>
-                  <el-col :span="18">
-                    <el-tag
-                      type="warning"
-                      v-for="(item3) in item2.children"
-                      :key="item3.id"
-                      closable
-                      @close="removeRightById(scope.row, item3.id)"
-                    >{{ item3.authName}}</el-tag>
-                  </el-col>
-                </el-row>
-              </el-col>
-            </el-row>
-          </template>
-        </el-table-column>
-        <!-- 索引列 -->
+      <!-- 用户列表区域 -->
+      <el-table :data="GradeList" border stripe>
+        <!-- stripe: 斑马条纹
+        border：边框-->
         <el-table-column type="index" label="#"></el-table-column>
-        <el-table-column label="角色名称" prop="roleName"></el-table-column>
-        <el-table-column label="角色描述" prop="roleDesc"></el-table-column>
-        <el-table-column label="操作" width="300px">
+        <el-table-column prop="sid" label="学生编号"></el-table-column>
+        <el-table-column prop="sname" label="学生姓名"></el-table-column>
+        <el-table-column prop="cname" label="课程名"></el-table-column>
+        <el-table-column prop="sgrade" label="成绩"></el-table-column>
+        <!-- <el-table-column prop="role_name" label="角色"></el-table-column>
+        <el-table-column label="状态">
           <template slot-scope="scope">
-            <el-button type="primary" icon="el-icon-edit" size="mini" @click="showEditDialog(scope.row.id)">编辑</el-button>
-            <el-button type="danger" icon="el-icon-delete" size="mini" @click="removeRoleById(scope.row.id)">删除</el-button>
+            <el-switch v-model="scope.row.mg_state" @change="userStateChanged(scope.row)"></el-switch>
+          </template>
+        </el-table-column> -->
+        <el-table-column label="操作">
+          <template slot-scope="scope">
             <el-button
-              type="warning"
-              icon="el-icon-setting"
+              type="primary"
+              icon="el-icon-edit"
               size="mini"
-              @click="showSetRightDialog(scope.row)"
-            >分配权限</el-button>
+              circle
+              @click="showEditDialog(scope.row.sid)"
+            ></el-button>
+            <el-button
+              type="danger"
+              icon="el-icon-delete"
+              size="mini"
+              circle
+              @click="delGrade(scope.row.sid)"
+            ></el-button>
+            <el-tooltip
+              class="item"
+              effect="dark"
+              content="角色分配"
+              :enterable="false"
+              placement="top"
+            >
+              <el-button
+                type="warning"
+                icon="el-icon-setting"
+                size="mini"
+                circle
+                @click="showSetRole(scope.row)"
+              ></el-button>
+            </el-tooltip>
           </template>
         </el-table-column>
       </el-table>
+      <!-- 分页区域 -->
+      <el-pagination
+        @size-change="handleSizeChange"
+        @current-change="handleCurrentChange"
+        :current-page="queryInfo.pagenum"
+        :page-sizes="[1, 5, 10, 15]"
+        :page-size="queryInfo.pagesize"
+        layout="total, sizes, prev, pager, next, jumper"
+        :total="total"
+      ></el-pagination>
     </el-card>
-    <!-- 分配权限 -->
+
+    <!-- 录入学生成绩的对话框 -->
+    <el-dialog title="录入学生成绩" :visible.sync="InputDialogVisible" width="50%" @close="InputDialogClosed">
+      <!-- 内容主体 -->
+      <el-form
+        :model="InputGradeForm"
+        ref="InputGradeFormRef"
+        label-width="100px"
+      >
+      <!-- <el-form
+        :model="InputGradeForm"
+        ref="InputGradeFormRef"
+        :rules="InputGradeFormRules"
+        label-width="100px"
+      > -->
+        <el-form-item label="学生编号" prop="sid">
+          <el-input v-model="InputGradeForm.sid"></el-input>
+        </el-form-item>
+        <el-form-item label="学生姓名" prop="sname">
+          <el-input v-model="InputGradeForm.sname"></el-input>
+        </el-form-item>
+        <el-form-item label="课程名" prop="cname">
+          <el-input v-model="InputGradeForm.cname"></el-input>
+        </el-form-item>
+        <el-form-item label="成绩" prop="sgrade">
+          <el-input v-model="InputGradeForm.sgrade"></el-input>
+        </el-form-item>
+      </el-form>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="InputDialogVisible = false">取 消</el-button>
+        <el-button type="primary" @click="InputGrade">确 定</el-button>
+      </span>
+    </el-dialog>
+
+    <!-- 修改学生成绩的对话框 -->
     <el-dialog
-      title="分配权限"
-      :visible.sync="setRightDialogVisible"
+      title="修改学生成绩信息"
+      :visible.sync="editDialogVisible"
       width="50%"
-      @close="setRightDialogClosed"
+      @close="editDialogClosed"
     >
-      <el-tree
-        :data="rightsList"
-        :props="treeProps"
-        ref="treeRef"
-        show-checkbox
-        node-key="id"
-        default-expand-all
-        :default-checked-keys="defKeys"
-      ></el-tree>
-      <span slot="footer" class="dialog-footer">
-        <el-button @click="setRightDialogVisible = false">取 消</el-button>
-        <el-button type="primary" @click="allotRights">确 定</el-button>
-      </span>
-    </el-dialog>
-    <!-- 添加角色对话框 -->
-    <el-dialog title="添加角色" :visible.sync="AddRoleDialogVisible" width="40%" @close="addRoleDialogClosed">
+      <!-- 内容主体 -->
       <el-form
-        :model="addRoleForm"
-        ref="addRoleFormRef"
-        :rules="addRoleFormRules"
+        :model="ModifyGradeForm"
+        ref="ModifyGradeFormRef"
         label-width="100px"
       >
-        <el-form-item label="角色名称" prop="roleName">
-          <el-input v-model="addRoleForm.roleName"></el-input>
+      <!-- <el-form
+        :model="ModifyGradeForm"
+        ref="ModifyGradeFormRef"
+        :rules="ModifyGradeFormRules"
+        label-width="100px"
+      > -->
+        <el-form-item label="学生编号" pro="sid">
+          <el-input v-model="ModifyGradeForm.sid" disabled></el-input>
         </el-form-item>
-        <el-form-item label="角色描述" prop="roleDesc">
-          <el-input v-model="addRoleForm.roleDesc"></el-input>
+        <el-form-item label="学生姓名" prop="sname">
+          <el-input v-model="ModifyGradeForm.sname"></el-input>
+        </el-form-item>
+        <el-form-item label="课程名" prop="cname">
+          <el-input v-model="ModifyGradeForm.cname"></el-input>
+        </el-form-item>
+        <el-form-item label="成绩" prop="sgrade">
+          <el-input v-model="ModifyGradeForm.sgrade"></el-input>
         </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
-        <el-button @click="AddRoleDialogVisible = false">取 消</el-button>
-        <el-button type="primary" @click="addRoles">确 定</el-button>
+        <el-button @click="editDialogVisible = false">取 消</el-button>
+        <el-button type="primary" @click="ModifyGrade">确 定</el-button>
       </span>
     </el-dialog>
-    <!-- 编辑角色对话框 -->
-    <el-dialog title="编辑角色" :visible.sync="editRoleDialogVisible" width="40%" @close="addRoleDialogClosed">
-      <el-form
-        :model="editRoleForm"
-        ref="editRoleFormRef"
-        :rules="editRoleFormRules"
-        label-width="100px"
-      >
-        <el-form-item label="角色名称" prop="roleName">
-          <el-input v-model="editRoleForm.roleName"></el-input>
-        </el-form-item>
-        <el-form-item label="角色描述" prop="roleDesc">
-          <el-input v-model="editRoleForm.roleDesc"></el-input>
-        </el-form-item>
-      </el-form>
+
+    <!-- 分配角色对话框 -->
+    <el-dialog title="分配角色" :visible.sync="setRoleDialogVisible" width="50%" @close="setRoleDialogClosed">
+      <div>
+        <p>当前用户：{{userInfo.username}}</p>
+        <p>当前角色：{{userInfo.role_name}}</p>
+        <p>
+          分配角色：
+          <el-select
+            v-model="selectRoleId"
+            filterable
+            allow-Input
+            default-first-option
+            placeholder="请选择文章标签"
+          >
+            <el-option
+              v-for="item in rolesLsit"
+              :key="item.id"
+              :label="item.roleName"
+              :value="item.id"
+            ></el-option>
+          </el-select>
+        </p>
+      </div>
       <span slot="footer" class="dialog-footer">
-        <el-button @click="editRoleDialogVisible = false">取 消</el-button>
-        <el-button type="primary" @click="editRoles">确 定</el-button>
+        <el-button @click="setRoleDialogVisible = false">取 消</el-button>
+        <el-button type="primary" @click="saveRoleInfo">确 定</el-button>
       </span>
     </el-dialog>
   </div>
 </template>
 
 <script>
+// import axios from 'axios'
 export default {
   data () {
+    // 自定义邮箱规则
+    var checkEmail = (rule, value, callback) => {
+      const regEmail = /^\w+@\w+(\.\w+)+$/
+      if (regEmail.test(value)) {
+        // 合法邮箱
+        return callback()
+      }
+      callback(new Error('请输入合法邮箱'))
+    }
+    // 自定义手机号规则
+    var checkMobile = (rule, value, callback) => {
+      const regMobile = /^1[34578]\d{9}$/
+      if (regMobile.test(value)) {
+        return callback()
+      }
+      // 返回一个错误提示
+      callback(new Error('请输入合法的手机号码'))
+    }
     return {
-      // 所有角色列表
-      rolesList: [],
-      // 分配权限框
-      setRightDialogVisible: false,
-      // 权限列表
-      rightsList: [],
-      //  树形控件的属性绑定对象
-      treeProps: {
-        label: 'authName',
-        children: 'children'
+      // 获取用户列表查询参数对象
+      queryInfo: {
+        query: '',
+        // 当前页数
+        pagenum: 1,
+        // 每页显示多少数据
+        pagesize: 5
       },
-      //   默认选中节点ID值
-      defKeys: [],
-      //   添加用户对话框
-      AddRoleDialogVisible: false,
-      // 添加角色表单
-      addRoleForm: {},
-      //   添加角色表单验证
-      addRoleFormRules: {
-        roleName: [
-          { required: true, message: '请输入角色名称', trigger: 'blur' }
+      GradeList: [],
+      total: 0,
+      // 录入学生成绩对话框
+      InputDialogVisible: false,
+      // 用户添加
+      InputGradeForm: {
+        sid: '',
+        cname: '',
+        sname: '',
+        sgrade: ''
+        // mobile: ''
+      },
+      // 用户添加表单验证规则
+      InputGradeFormRules: {
+        username: [
+          { required: true, message: '请输入用户名', trigger: 'blur' },
+          {
+            min: 2,
+            max: 10,
+            message: '用户名的长度在2～10个字',
+            trigger: 'blur'
+          }
         ],
-        roleDesc: [
-          { required: true, message: '请输入角色描述', trigger: 'blur' }
+        password: [
+          { required: true, message: '请输入用户密码', trigger: 'blur' },
+          {
+            min: 6,
+            max: 18,
+            message: '用户密码的长度在6～18个字',
+            trigger: 'blur'
+          }
+        ],
+        email: [
+          { required: true, message: '请输入邮箱', trigger: 'blur' },
+          { validator: checkEmail, trigger: 'blur' }
+        ],
+        mobile: [
+          { required: true, message: '请输入手机号码', trigger: 'blur' },
+          { validator: checkMobile, trigger: 'blur' }
         ]
       },
-      //   编辑角色信息
-      editRoleForm: {},
-      editRoleDialogVisible: false,
-      editRoleFormRules: {
-        roleName: [
-          { required: true, message: '请输入角色名称', trigger: 'blur' }
+      // 修改学生成绩
+      editDialogVisible: false,
+      ModifyGradeForm: {},
+      // 编辑用户表单验证
+      ModifyGradeFormRules: {
+        email: [
+          { required: true, message: '请输入邮箱', trigger: 'blur' },
+          { validator: checkEmail, trigger: 'blur' }
         ],
-        roleDesc: [
-          { required: true, message: '请输入角色描述', trigger: 'blur' }
+        mobile: [
+          { required: true, message: '请输入手机号码', trigger: 'blur' },
+          { validator: checkMobile, trigger: 'blur' }
         ]
       },
-      //   当前即将分配权限的Id
-      roleId: 0
+      // 分配角色对话框
+      setRoleDialogVisible: false,
+      // 当前需要被分配角色的用户
+      userInfo: {},
+      // 所有角色数据列表
+      rolesLsit: [],
+      // 已选中的角色Id值
+      selectRoleId: ''
     }
   },
-  created () {
-    this.getRolesList()
+  Inputd () {
+    this.getGradeList()
   },
   methods: {
-    async getRolesList () {
-      const { data: res } = await this.$http.get('roles')
+    async getGradeList () {
+      const { data: res } = await this.$http.get('getGradeList', { params: this.queryInfo })
+      // const { data: res } = await axios.get('http://10.102.101.75:1234/getGradeList/', {
+      //   params: this.queryInfo
+      // })
+      // axios.get('http://127.0.0.1:1234/us')
+      // const { data: res } = await this.$http.get('users', {
+      //   params: this.queryInfo
+      // })
       if (res.meta.status !== 200) {
-        return this.$message.error('获取角色列表失败！')
+        return this.$message.error('获取用户列表失败！')
       }
-      this.rolesList = res.data
+      console.log(res)
+      this.GradeList = res.data.GradeList
+      this.total = res.data.total
+      // console.log(this.GradeList)
     },
-    // 根据ID删除对应的权限
-    async removeRightById (role, rightId) {
-      // 弹框提示 删除
+    // 监听 pagesize改变的事件
+    handleSizeChange (newSize) {
+      // console.log(newSize)
+      this.queryInfo.pagesize = newSize
+      this.getGradeList()
+    },
+    // 监听 页码值 改变事件
+    handleCurrentChange (newSize) {
+      // console.log(newSize)
+      this.queryInfo.pagenum = newSize
+      this.getGradeList()
+    },
+    // 监听 switch开关 状态改变
+    async userStateChanged (userInfo) {
+      // console.log(userInfo)
+      const { data: res } = await this.$http.put(
+        `users/${userInfo.id}/state/${userInfo.mg_state}`
+      )
+      if (res.meta.status !== 200) {
+        userInfo.mg_state = !userInfo.mg_state
+        return this.$message.error('更新用户状态失败')
+      }
+      this.$message.success('更新用户状态成功！')
+    },
+    // 监听 录入学生成绩对话框的关闭事件
+    InputDialogClosed () {
+      this.$refs.InputGradeFormRef.resetFields()
+    },
+    // 录入学生成绩
+    InputGrade () {
+      // 提交请求前，表单预验证
+      this.$refs.InputGradeFormRef.validate(async valid => {
+        // console.log(valid)
+        // 表单预校验失败
+        if (!valid) return
+        const { data: res } = await this.$http.get('InputGrade', { params: this.InputGradeForm })
+        // const { data: res } = await axios.get('http://localhost:1234/InputGrade/', {
+        //   params: this.InputGradeForm
+        // })
+        if (res.meta.status === 200) {
+          this.$message.success('录入学生成绩成功！')
+        } else {
+          this.$message.error('录入学生成绩失败！')
+        }
+        // 隐藏录入学生成绩对话框
+        this.InputDialogVisible = false
+        this.getGradeList()
+      })
+    },
+    // 编辑用户信息
+    async showEditDialog (sid) {
+      // const { data: res } = await this.$http.get('users/' + sid)
+      // const { data: res } = await axios.get('http://localhost:1234/InputGrade/', {
+      //   params: this.InputGradeForm
+      // })
+      // if (res.meta.status !== 200) {
+      //   return this.$message.error('查询用户信息失败！')
+      // }
+      this.ModifyGradeForm.sid = sid
+      this.editDialogVisible = true
+    },
+    // 监听修改学生成绩对话框的关闭事件
+    editDialogClosed () {
+      this.$refs.ModifyGradeFormRef.resetFields()
+    },
+    // 修改学生成绩信息
+    ModifyGrade () {
+      // 提交请求前，表单预验证
+      this.$refs.ModifyGradeFormRef.validate(async valid => {
+        // console.log(valid)
+        // 表单预校验失败
+        if (!valid) return
+        // const { data: res } = await this.$http.put(
+        //   'ModifyGrade/' + this.ModifyGradeForm
+        // )
+        const { data: res } = await this.$http.get('ModifyGrade', { params: this.ModifyGradeForm })
+        // const { data: res } = await axios.get('http://localhost:1234/ModifyGrade/', {
+        //   params: this.ModifyGradeForm
+        // })
+        if (res.meta.status !== 200) {
+          this.$message.error('修改学生成绩信息失败！')
+        } else {
+          this.$message.success('修改学生成绩信息成功！')
+        }
+        // 隐藏录入学生成绩对话框
+        this.editDialogVisible = false
+        this.getGradeList()
+      })
+    },
+    // 删除学生成绩
+    async delGrade (sid) {
       const confirmResult = await this.$confirm(
-        '此操作将永久删除该权限, 是否继续?',
+        '此操作将永久删除该学生成绩, 是否继续?',
         '提示',
         {
           confirmButtonText: '确定',
@@ -212,141 +402,48 @@ export default {
       // 点击确定 返回值为：confirm
       // 点击取消 返回值为： cancel
       if (confirmResult !== 'confirm') {
-        return this.$message.info('已取消权限删除')
-      }
-      const { data: res } = await this.$http.delete(
-        `roles/${role.id}/rights/${rightId}`
-      )
-      if (res.meta.status !== 200) {
-        return this.$message.error('删除权限失败！')
-      }
-      role.children = res.data
-      //   不建议使用
-      // this.getRolesList()
-    },
-    // 分配权限
-    async showSetRightDialog (role) {
-      this.roleId = role.id
-      // 获取角色的所有权限
-      const { data: res } = await this.$http.get('rights/tree')
-      if (res.meta.status !== 200) {
-        return this.$message.error('获取权限数据失败！')
-      }
-      //   获取权限树
-      this.rightsList = res.data
-      //   console.log(res)
-      //   递归获取三级节点的id
-      this.getLeafkeys(role, this.defKeys)
-
-      this.setRightDialogVisible = true
-    },
-    // 通过递归 获取角色下三级权限的 id, 并保存到defKeys数组
-    getLeafkeys (node, arr) {
-      // 没有children属性，则是三级节点
-      if (!node.children) {
-        return arr.push(node.id)
-      }
-      node.children.forEach(item => this.getLeafkeys(item, arr))
-    },
-    // 权限对话框关闭事件
-    setRightDialogClosed () {
-      this.defKeys = []
-    },
-    // 添加角色对话框的关闭
-    addRoleDialogClosed () {
-      this.$refs.addRoleFormRef.resetFields()
-    },
-    // 添加角色
-    addRoles () {
-      this.$refs.addRoleFormRef.validate(async valid => {
-        if (!valid) return
-        const { data: res } = await this.$http.post('roles', this.addRoleForm)
-        if (res.meta.status !== 201) {
-          this.$message.error('添加角色失败！')
-        }
-        this.$message.success('添加角色成功！')
-        this.AddRoleDialogVisible = false
-        this.getRolesList()
-      })
-    },
-    // 删除角色
-    async removeRoleById (id) {
-      const confirmResult = await this.$confirm(
-        '此操作将永久删除该角色, 是否继续?',
-        '提示',
-        {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
-          type: 'warning'
-        }
-      ).catch(err => err)
-      if (confirmResult !== 'confirm') {
         return this.$message.info('已取消删除')
       }
-      const { data: res } = await this.$http.delete('roles/' + id)
-      if (res.meta.status !== 200) return this.$message.error('删除角色失败！')
-      this.$message.success('删除用户成功！')
-      this.getRolesList()
+      const { data: res } = await this.$http.get('delGrade', { params: { 'sid': sid } })
+      // const { data: res } = await axios.get('http://localhost:1234/delGrade/', {
+      //   params: { 'sid': sid }
+      // })
+      if (res.meta.status !== 200) return this.$message.error('删除学生成绩失败！')
+      this.$message.success('删除学生成绩成功！')
+      this.getGradeList()
     },
-    // 编辑角色
-    async showEditDialog (id) {
-      const { data: res } = await this.$http.get('roles/' + id)
-      if (res.meta.status !== 200) return this.$message.error('查询角色信息失败！')
-      this.editRoleForm = res.data
-      this.editRoleDialogVisible = true
+    // 展示分配角色的对话框
+    async showSetRole (role) {
+      this.userInfo = role
+      // 展示对话框之前，获取所有角色列表
+      const { data: res } = await this.$http.get('roles')
+      if (res.meta.status !== 200) {
+        return this.$message.error('获取角色列表失败！')
+      }
+      this.rolesLsit = res.data
+      this.setRoleDialogVisible = true
     },
-    editRoles () {
-      this.$refs.editRoleFormRef.validate(async valid => {
-        // console.log(valid)
-        // 表单预校验失败
-        if (!valid) return
-        const { data: res } = await this.$http.put(
-          'roles/' + this.editRoleForm.roleId,
-          {
-            roleName: this.editRoleForm.roleName,
-            roleDesc: this.editRoleForm.roleDesc
-          }
-        )
-        if (res.meta.status !== 200) {
-          this.$message.error('更新角色信息失败！')
-        }
-        // 隐藏编辑角色对话框
-        this.editRoleDialogVisible = false
-        this.$message.success('更新角色信息成功！')
-        this.getRolesList()
-      })
+    // 分配角色
+    async saveRoleInfo () {
+      if (!this.selectRoleId) {
+        return this.$message.error('请选择要分配的角色')
+      }
+      const { data: res } = await this.$http.put(`users/${this.userInfo.id}/role`, { rid: this.selectRoleId })
+      if (res.meta.status !== 200) {
+        return this.$message.error('更新用户角色失败！')
+      }
+      this.$message.success('更新角色成功！')
+      this.getGradeList()
+      this.setRoleDialogVisible = false
     },
-    // 分配权限
-    async allotRights (roleId) {
-      // 获得当前选中和半选中的Id
-      const keys = [
-        ...this.$refs.treeRef.getCheckedKeys(),
-        ...this.$refs.treeRef.getHalfCheckedKeys()
-      ]
-      // join() 方法用于把数组中的所有元素放入一个字符串
-      const idStr = keys.join(',')
-      const { data: res } = await this.$http.post(`roles/${this.roleId}/rights`, { rids: idStr })
-      if (res.meta.status !== 200) { return this.$message.error('分配权限失败！') }
-      this.$message.success('分配权限成功!')
-      this.getRolesList()
-      this.setRightDialogVisible = false
+    // 分配角色对话框关闭事件
+    setRoleDialogClosed () {
+      this.selectRoleId = ''
+      this.userInfo = {}
     }
   }
 }
 </script>
 
 <style lang="less" scoped>
-.el-tag {
-  margin: 7px;
-}
-.bdtop {
-  border-top: 1px solid #eee;
-}
-.bdbottom {
-  border-bottom: 1px solid #eee;
-}
-.vcenter {
-  display: flex;
-  align-items: center;
-}
 </style>
