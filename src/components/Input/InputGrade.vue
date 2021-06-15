@@ -3,8 +3,8 @@
     <!-- 面包屑导航区 -->
     <el-breadcrumb separator-class="el-icon-arrow-right">
       <el-breadcrumb-item :to="{ path: '/home' }">首页</el-breadcrumb-item>
-      <el-breadcrumb-item>学生成绩管理</el-breadcrumb-item>
-      <el-breadcrumb-item>学生成绩列表</el-breadcrumb-item>
+      <el-breadcrumb-item>成绩管理</el-breadcrumb-item>
+      <el-breadcrumb-item>成绩列表</el-breadcrumb-item>
     </el-breadcrumb>
     <!-- 卡片视图 -->
     <el-card>
@@ -16,7 +16,7 @@
           </el-input>
         </el-col>
         <el-col :span="4">
-          <el-button type="primary" @click="InputDialogVisible = true">录入学生成绩</el-button>
+          <el-button type="primary" @click="CreateDialogVisible = true">录入成绩</el-button>
         </el-col>
       </el-row>
       <!-- 用户列表区域 -->
@@ -80,8 +80,8 @@
       ></el-pagination>
     </el-card>
 
-    <!-- 录入学生成绩的对话框 -->
-    <el-dialog title="录入学生成绩" :visible.sync="InputDialogVisible" width="50%" @close="InputDialogClosed">
+    <!-- 录入成绩的对话框 -->
+    <el-dialog title="录入成绩" :visible.sync="CreateDialogVisible" width="50%" @close="CreateDialogClosed">
       <!-- 内容主体 -->
       <el-form
         :model="InputGradeForm"
@@ -108,14 +108,14 @@
         </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
-        <el-button @click="InputDialogVisible = false">取 消</el-button>
+        <el-button @click="CreateDialogVisible = false">取 消</el-button>
         <el-button type="primary" @click="InputGrade">确 定</el-button>
       </span>
     </el-dialog>
 
-    <!-- 修改学生成绩的对话框 -->
+    <!-- 修改成绩的对话框 -->
     <el-dialog
-      title="修改学生成绩信息"
+      title="修改成绩信息"
       :visible.sync="editDialogVisible"
       width="50%"
       @close="editDialogClosed"
@@ -161,7 +161,7 @@
           <el-select
             v-model="selectRoleId"
             filterable
-            allow-Input
+            allow-create
             default-first-option
             placeholder="请选择文章标签"
           >
@@ -215,13 +215,13 @@ export default {
       },
       GradeList: [],
       total: 0,
-      // 录入学生成绩对话框
-      InputDialogVisible: false,
+      // 录入成绩对话框
+      CreateDialogVisible: false,
       // 用户添加
       InputGradeForm: {
         sid: '',
-        cname: '',
         sname: '',
+        cname: '',
         sgrade: ''
         // mobile: ''
       },
@@ -254,7 +254,7 @@ export default {
           { validator: checkMobile, trigger: 'blur' }
         ]
       },
-      // 修改学生成绩
+      // 修改成绩
       editDialogVisible: false,
       ModifyGradeForm: {},
       // 编辑用户表单验证
@@ -278,7 +278,7 @@ export default {
       selectRoleId: ''
     }
   },
-  Inputd () {
+  created () {
     this.getGradeList()
   },
   methods: {
@@ -292,7 +292,7 @@ export default {
       //   params: this.queryInfo
       // })
       if (res.meta.status !== 200) {
-        return this.$message.error('获取用户列表失败！')
+        return this.$message.error('获取成绩列表失败！')
       }
       console.log(res)
       this.GradeList = res.data.GradeList
@@ -323,11 +323,11 @@ export default {
       }
       this.$message.success('更新用户状态成功！')
     },
-    // 监听 录入学生成绩对话框的关闭事件
-    InputDialogClosed () {
+    // 监听 录入成绩对话框的关闭事件
+    CreateDialogClosed () {
       this.$refs.InputGradeFormRef.resetFields()
     },
-    // 录入学生成绩
+    // 录入成绩
     InputGrade () {
       // 提交请求前，表单预验证
       this.$refs.InputGradeFormRef.validate(async valid => {
@@ -339,12 +339,12 @@ export default {
         //   params: this.InputGradeForm
         // })
         if (res.meta.status === 200) {
-          this.$message.success('录入学生成绩成功！')
+          this.$message.success('录入成绩成功！')
         } else {
-          this.$message.error('录入学生成绩失败！')
+          this.$message.error('录入成绩失败！')
         }
-        // 隐藏录入学生成绩对话框
-        this.InputDialogVisible = false
+        // 隐藏录入成绩对话框
+        this.CreateDialogVisible = false
         this.getGradeList()
       })
     },
@@ -360,11 +360,11 @@ export default {
       this.ModifyGradeForm.sid = sid
       this.editDialogVisible = true
     },
-    // 监听修改学生成绩对话框的关闭事件
+    // 监听修改成绩对话框的关闭事件
     editDialogClosed () {
       this.$refs.ModifyGradeFormRef.resetFields()
     },
-    // 修改学生成绩信息
+    // 修改成绩信息
     ModifyGrade () {
       // 提交请求前，表单预验证
       this.$refs.ModifyGradeFormRef.validate(async valid => {
@@ -379,19 +379,19 @@ export default {
         //   params: this.ModifyGradeForm
         // })
         if (res.meta.status !== 200) {
-          this.$message.error('修改学生成绩信息失败！')
+          this.$message.error('修改成绩信息失败！')
         } else {
-          this.$message.success('修改学生成绩信息成功！')
+          this.$message.success('修改成绩信息成功！')
         }
-        // 隐藏录入学生成绩对话框
+        // 隐藏录入成绩对话框
         this.editDialogVisible = false
         this.getGradeList()
       })
     },
-    // 删除学生成绩
+    // 删除成绩
     async delGrade (sid) {
       const confirmResult = await this.$confirm(
-        '此操作将永久删除该学生成绩, 是否继续?',
+        '此操作将永久删除该成绩, 是否继续?',
         '提示',
         {
           confirmButtonText: '确定',
@@ -408,8 +408,8 @@ export default {
       // const { data: res } = await axios.get('http://localhost:1234/delGrade/', {
       //   params: { 'sid': sid }
       // })
-      if (res.meta.status !== 200) return this.$message.error('删除学生成绩失败！')
-      this.$message.success('删除学生成绩成功！')
+      if (res.meta.status !== 200) return this.$message.error('删除成绩失败！')
+      this.$message.success('删除成绩成功！')
       this.getGradeList()
     },
     // 展示分配角色的对话框
