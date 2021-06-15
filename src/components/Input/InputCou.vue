@@ -20,12 +20,12 @@
         </el-col>
       </el-row>
       <!-- 用户列表区域 -->
-      <el-table :data="CourseList" border stripe>
+      <el-table :data="CourseList" border stripe :default-sort = "{prop: 'cid', order: 'ascending'}">
         <!-- stripe: 斑马条纹
         border：边框-->
         <el-table-column type="index" label="#"></el-table-column>
-        <el-table-column prop="cid" label="课程编号"></el-table-column>
-        <el-table-column prop="cname" label="课程名称"></el-table-column>
+        <el-table-column prop="cid" label="课程编号" sortable></el-table-column>
+        <el-table-column prop="cname" label="课程名称" sortable></el-table-column>
         <!-- <el-table-column prop="ssex" label="课程性别"></el-table-column> -->
         <!-- <el-table-column prop="cname" label="所属班级"></el-table-column> -->
         <!-- <el-table-column prop="role_name" label="角色"></el-table-column>

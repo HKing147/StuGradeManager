@@ -20,14 +20,14 @@
         </el-col>
       </el-row>
       <!-- 用户列表区域 -->
-      <el-table :data="ClassList" border stripe>
+      <el-table :data="ClassList" border stripe :default-sort = "{prop: 'cid', order: 'ascending'}">
         <!-- stripe: 斑马条纹
         border：边框-->
         <el-table-column type="index" label="#"></el-table-column>
-        <el-table-column prop="cid" label="班级编号"></el-table-column>
-        <el-table-column prop="cname" label="班级名称"></el-table-column>
+        <el-table-column prop="cid" label="班级编号" sortable></el-table-column>
+        <el-table-column prop="cname" label="班级名称" sortable></el-table-column>
         <!-- <el-table-column prop="jcharge" label="班级负责人"></el-table-column> -->
-        <el-table-column prop="dname" label="所属系"></el-table-column>
+        <el-table-column prop="dname" label="所属系" sortable></el-table-column>
         <!-- <el-table-column prop="role_name" label="角色"></el-table-column>
         <el-table-column label="状态">
           <template slot-scope="scope">
