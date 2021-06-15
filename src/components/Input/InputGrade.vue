@@ -9,18 +9,21 @@
     <!-- 卡片视图 -->
     <el-card>
       <!-- 搜索 添加 -->
-      <el-row :gutter="20">
-        <el-col :span="6">
+      <el-row  :gutter="20">
+        <el-col :span="13">
           <el-input placeholder="请输入内容" v-model="queryInfo.query" clearable @clear="getGradeList">
             <el-button slot="append" icon="el-icon-search" @click="getGradeList"></el-button>
           </el-input>
         </el-col>
-        <el-col :span="4">
+        <el-col :span="9">
           <el-button type="primary" @click="CreateDialogVisible = true">录入成绩</el-button>
+        </el-col>
+        <el-col :span="1">
+          <el-button type="primary" @click="exportExcel">导出</el-button>
         </el-col>
       </el-row>
       <!-- 用户列表区域 -->
-      <el-table :data="GradeList" border stripe :default-sort = "{prop: 'sid', order: 'ascending'}">
+      <el-table :data="GradeList" border stripe :default-sort = "{prop: 'sid', order: 'ascending'}" id="GradeList">
         <!-- stripe: 斑马条纹
         border：边框-->
         <el-table-column type="index" label="#"></el-table-column>
@@ -184,6 +187,10 @@
 
 <script>
 // import axios from 'axios'
+// 引入导出Excel表格依赖
+import FileSaver from 'file-saver'
+import XLSX from 'xlsx'
+
 export default {
   data () {
     // 自定义邮箱规则
@@ -440,6 +447,34 @@ export default {
     setRoleDialogClosed () {
       this.selectRoleId = ''
       this.userInfo = {}
+    },
+    async exportExcel () {
+      var oripagenum = this.queryInfo.pagenum
+      var oripagesize = this.queryInfo.pagesize
+      this.queryInfo.pagenum = 1
+      this.queryInfo.pagesize = this.total// 表格长度变长
+      await this.getGradeList()
+      // const { data: res } = await this.$http.get('getGradeList', { params: this.queryInfo })
+      // const { data: res } = this.$http.get('getGradeList', { params: this.queryInfo })
+      // console.log(res)
+      // this.GradeList = res.data.GradeList
+      // this.total = res.data.total
+      // this.getGradeList()
+      // this.currentPage = '1'
+      this.$nextTick(function () {
+        let wb = XLSX.utils.table_to_book(document.querySelector('#GradeList'))
+        /* get binary string as output */
+        let wbout = XLSX.write(wb, { bookType: 'xlsx', bookSST: true, type: 'array' })
+        try {
+          FileSaver.saveAs(new Blob([wbout], { type: 'application/octet-stream' }), '表格名字.xlsx')
+        } catch (e) {
+          if (typeof console !== 'undefined') console.log(e, wbout)
+        }
+        this.queryInfo.pagenum = oripagenum// 表格还原
+        this.queryInfo.pagesize = oripagesize
+        this.getGradeList()
+        return wbout
+      })
     }
   }
 }
