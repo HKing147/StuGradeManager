@@ -42,3 +42,20 @@ div .el-scrollbar__wrap {
 .ql-editor{
     min-height: 300px;
 }
+
+.el-cascader {
+    width: 500px;
+}
+
+/* .el-slider {
+    width: 500px;
+    position: relative;
+    float: left;
+    padding-left: 50px;
+    padding-right: 50px;
+} */
+
+/* .el-input-number {
+    position: relative;
+    float: left;
+}    */

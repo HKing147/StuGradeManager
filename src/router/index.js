@@ -49,7 +49,7 @@ const InputTeaCou = () => import(/* webpackChunkName: "Input" */ '../components/
 const InputClassCou = () => import(/* webpackChunkName: "Input" */ '../components/Input/InputClassCou')
 const InputGrade = () => import(/* webpackChunkName: "Input" */ '../components/Input/InputGrade')
 /* 查询 */
-const QueryGrade = () => import(/* webpackChunkName: "Query" */ '../components/Query/QueryGrade')
+const QueryGradeByClass = () => import(/* webpackChunkName: "Query" */ '../components/Query/QueryGradeByClass')
 const QuerySum = () => import(/* webpackChunkName: "Query" */ '../components/Query/QuerySum')
 const QueryRank = () => import(/* webpackChunkName: "Query" */ '../components/Query/QueryRank')
 
@@ -86,7 +86,7 @@ const routes = [
       { path: '/InputClassCou', component: InputClassCou },
       { path: '/InputGrade', component: InputGrade },
       /* 查询 */
-      { path: '/QueryGrade', component: QueryGrade },
+      { path: '/QueryGradeByClass', component: QueryGradeByClass },
       { path: '/QuerySum', component: QuerySum },
       { path: '/QueryRank', component: QueryRank }
     ] }

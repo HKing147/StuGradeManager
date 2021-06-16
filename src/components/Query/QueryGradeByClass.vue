@@ -8,42 +8,16 @@
     </el-breadcrumb>
     <!-- 卡片视图 -->
     <el-card>
-    <div style="padding:10px 0px 22px 0px; font-size:25px">选择查询区间</div>
       <!-- 搜索 添加 -->
-      <el-row  :gutter="30">
-        <el-col :span="3">
-          <el-input-number size="small" v-model="value[0]"  @change="handleChangeLeft" :step=0.5 :min="0" :max="100" label="描述文字"></el-input-number>
-          <!-- <el-cascader placeholder="请输入班级名" :options="MenuTree.options" :props="{ expandTrigger: 'hover' }" @change="handleChange" filterable></el-cascader> -->
+      <el-row  :gutter="20">
+        <el-col :span="10">
+          <el-cascader placeholder="请输入班级名" :options="MenuTree.options" :props="{ expandTrigger: 'hover' }" @change="handleChange" filterable></el-cascader>
         </el-col>
         <el-col :span="12">
-          <el-slider
-      v-model="value"
-      range
-      :max="100"
-      :key="key"
-      :step=0.5
-      @change="handleChange">
-    </el-slider>
-          <!-- <el-button type="primary" @click="QueryGradeByClass">查询</el-button> -->
+          <el-button type="primary" @click="QueryGradeByClass">查询</el-button>
         </el-col>
         <el-col :span="2">
-    <el-input-number size="small" v-model="value[1]" @change="handleChangeRight" :step=0.5 :min="0" :max="100" label="描述文字"></el-input-number>
-          <!-- <el-button type="primary" @click="exportExcel">导出</el-button> -->
-        </el-col>
-      </el-row>
-      <div style="padding:10px 0px 22px 0px; font-size:25px">选择查询的课程名</div>
-      <el-row  :gutter="30">
-        <el-col :span="6">
-    <el-select v-model="SelectedCourse" style="width:300px" @change="selected" filterable placeholder="请选择">
-      <el-option
-        v-for="item in CourseList"
-        :key="item.cname"
-        :label="item.cname"
-        :value="item.cname">
-      </el-option>
-    </el-select>
-        </el-col><el-col :span="2">
-          <el-button type="primary" @click="QuerySum">查询</el-button>
+          <el-button type="primary" @click="exportExcel">导出</el-button>
         </el-col>
       </el-row>
       <!-- 用户列表区域 -->
@@ -235,9 +209,6 @@ export default {
       callback(new Error('请输入合法的手机号码'))
     }
     return {
-      key: 1,
-      value: [0, 100],
-      SelectedCourse: '',
       MenuTree: {},
       // options: [{ 'value': '信息工程学院', 'label': '信息工程学院', 'children': [{ 'value': '计算机系', 'label': '计算机系', 'children': [{ 'value': '计算机191班', 'label': '计算机191班' }, { 'value': '计算机192班', 'label': '计算机192班' }, { 'value': '计算机193班', 'label': '计算机193班' }] }, { 'value': '电子系', 'label': '电子系' }] }, { 'value': '机电工程学院', 'label': '机电工程学院' }, { 'value': '建筑工程学院', 'label': '建筑工程学院' }],
       // 获取用户列表查询参数对象
@@ -246,12 +217,8 @@ export default {
         // 当前页数
         pagenum: 1,
         // 每页显示多少数据
-        pagesize: 5,
-        cname: '',
-        left: 0,
-        right: 100
+        pagesize: 5
       },
-      CourseList: [],
       GradeList: [],
       total: 0,
       // 录入成绩对话框
@@ -320,7 +287,6 @@ export default {
   created () {
     this.getMenuTree()
     this.getGradeList()
-    this.getCourseList()
   },
   methods: {
     async getMenuTree () {
@@ -330,43 +296,6 @@ export default {
       }
       console.log(res)
       this.MenuTree = res.data
-    },
-    async getCourseList () {
-      const { data: res } = await this.$http.get('getCourseList', { params: { query: '', pagenum: 1, pagesize: 10000 } })
-      // const { data: res } = await axios.get('http://10.102.101.75:1234/getGradeList/', {
-      //   params: this.queryInfo
-      // })
-      // axios.get('http://127.0.0.1:1234/us')
-      // const { data: res } = await this.$http.get('users', {
-      //   params: this.queryInfo
-      // })
-      if (res.meta.status !== 200) {
-        return this.$message.error('获取课程列表失败！')
-      }
-      console.log(res)
-      this.CourseList = res.data.CourseList
-      this.total = res.data.total
-      // console.log(this.GradeList)
-    },
-    async QuerySum () {
-      this.queryInfo.left = this.value[0]
-      this.queryInfo.right = this.value[1]
-      console.log(this.queryInfo.cname)
-      const { data: res } = await this.$http.get('QuerySum', { params: this.queryInfo })
-      // const { data: res } = await axios.get('http://10.102.101.75:1234/getGradeList/', {
-      //   params: this.queryInfo
-      // })
-      // axios.get('http://127.0.0.1:1234/us')
-      // const { data: res } = await this.$http.get('users', {
-      //   params: this.queryInfo
-      // })
-      if (res.meta.status !== 200) {
-        return this.$message.error('获取成绩列表失败！')
-      }
-      console.log(res)
-      this.GradeList = res.data.GradeList
-      this.total = res.data.total
-      // console.log(this.GradeList)
     },
     async QueryGradeByClass () {
       const { data: res } = await this.$http.get('QueryGradeByClass', { params: this.queryInfo })
@@ -406,13 +335,13 @@ export default {
     handleSizeChange (newSize) {
       // console.log(newSize)
       this.queryInfo.pagesize = newSize
-      this.QuerySum()
+      this.getGradeList()
     },
     // 监听 页码值 改变事件
     handleCurrentChange (newSize) {
       // console.log(newSize)
       this.queryInfo.pagenum = newSize
-      this.QuerySum()
+      this.getGradeList()
     },
     // 监听 switch开关 状态改变
     async userStateChanged (userInfo) {
@@ -573,20 +502,9 @@ export default {
       })
     },
     handleChange (value) {
-      console.log(value)
+      console.log(value[2])
+      this.queryInfo.cname = value[2]
       return value
-    },
-    handleChangeLeft (value) {
-      this.key += 1
-      console.log(value[0])
-    },
-    handleChangeRight (value) {
-      this.key += 1
-      console.log(value[1])
-    },
-    selected (value) {
-      this.queryInfo.cname = value
-      console.log(value)
     }
   }
 }
