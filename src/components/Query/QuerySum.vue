@@ -328,7 +328,7 @@ export default {
       if (res.meta.status !== 200) {
         return this.$message.error('获取成绩列表失败！')
       }
-      console.log(res)
+      // console.log(res)
       this.MenuTree = res.data
     },
     async getCourseList () {
@@ -343,7 +343,7 @@ export default {
       if (res.meta.status !== 200) {
         return this.$message.error('获取课程列表失败！')
       }
-      console.log(res)
+      // console.log(res)
       this.CourseList = res.data.CourseList
       this.total = res.data.total
       // console.log(this.GradeList)
@@ -351,7 +351,7 @@ export default {
     async QuerySum () {
       this.queryInfo.left = this.value[0]
       this.queryInfo.right = this.value[1]
-      console.log(this.queryInfo.cname)
+      // console.log(this.queryInfo.cname)
       const { data: res } = await this.$http.get('QuerySum', { params: this.queryInfo })
       // const { data: res } = await axios.get('http://10.102.101.75:1234/getGradeList/', {
       //   params: this.queryInfo
@@ -363,7 +363,7 @@ export default {
       if (res.meta.status !== 200) {
         return this.$message.error('获取成绩列表失败！')
       }
-      console.log(res)
+      // console.log(res)
       this.GradeList = res.data.GradeList
       this.total = res.data.total
       // console.log(this.GradeList)
@@ -380,7 +380,7 @@ export default {
       if (res.meta.status !== 200) {
         return this.$message.error('获取成绩列表失败！')
       }
-      console.log(res)
+      // console.log(res)
       this.GradeList = res.data.GradeList
       this.total = res.data.total
       // console.log(this.GradeList)
@@ -397,7 +397,7 @@ export default {
       if (res.meta.status !== 200) {
         return this.$message.error('获取成绩列表失败！')
       }
-      console.log(res)
+      // console.log(res)
       this.GradeList = res.data.GradeList
       this.total = res.data.total
       // console.log(this.GradeList)
@@ -562,9 +562,9 @@ export default {
         /* get binary string as output */
         let wbout = XLSX.write(wb, { bookType: 'xlsx', bookSST: true, type: 'array' })
         try {
-          FileSaver.saveAs(new Blob([wbout], { type: 'application/octet-stream' }), this.queryInfo.cname + '=.xlsx')
+          FileSaver.saveAs(new Blob([wbout], { type: 'application/octet-stream' }), this.queryInfo.cname + '.xlsx')
         } catch (e) {
-          if (typeof console !== 'undefined') console.log(e, wbout)
+          // if (typeof console !== 'undefined') console.log(e, wbout)
         }
         this.queryInfo.pagenum = oripagenum// 表格还原
         this.queryInfo.pagesize = oripagesize
@@ -573,20 +573,20 @@ export default {
       })
     },
     handleChange (value) {
-      console.log(value)
+      // console.log(value)
       return value
     },
     handleChangeLeft (value) {
       this.key += 1
-      console.log(value[0])
+      // console.log(value[0])
     },
     handleChangeRight (value) {
       this.key += 1
-      console.log(value[1])
+      // console.log(value[1])
     },
     selected (value) {
       this.queryInfo.cname = value
-      console.log(value)
+      // console.log(value)
     }
   }
 }

@@ -491,7 +491,7 @@ export default {
         /* get binary string as output */
         let wbout = XLSX.write(wb, { bookType: 'xlsx', bookSST: true, type: 'array' })
         try {
-          FileSaver.saveAs(new Blob([wbout], { type: 'application/octet-stream' }), this.queryInfo.cname + '=.xlsx')
+          FileSaver.saveAs(new Blob([wbout], { type: 'application/octet-stream' }), this.queryInfo.cname + '.xlsx')
         } catch (e) {
           if (typeof console !== 'undefined') console.log(e, wbout)
         }
