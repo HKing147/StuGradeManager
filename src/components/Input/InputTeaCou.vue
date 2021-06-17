@@ -3,8 +3,8 @@
     <!-- 面包屑导航区 -->
     <el-breadcrumb separator-class="el-icon-arrow-right">
       <el-breadcrumb-item :to="{ path: '/home' }">首页</el-breadcrumb-item>
-      <el-breadcrumb-item>老师教授的班级课程管理</el-breadcrumb-item>
-      <el-breadcrumb-item>老师教授的班级课程列表</el-breadcrumb-item>
+      <el-breadcrumb-item>各班开设的课程管理</el-breadcrumb-item>
+      <el-breadcrumb-item>各班开设的课程列表</el-breadcrumb-item>
     </el-breadcrumb>
     <!-- 卡片视图 -->
     <el-card>
@@ -300,7 +300,7 @@ export default {
       if (res.meta.status !== 200) {
         return this.$message.error('获取老师教授的班级课程列表失败！')
       }
-      console.log(res)
+      // console.log(res)
       this.TeacherClassCourseList = res.data.TeacherClassCourseList
       this.total = res.data.total
       // console.log(this.TeacherClassCourseList)
@@ -460,7 +460,7 @@ export default {
         try {
           FileSaver.saveAs(new Blob([wbout], { type: 'application/octet-stream' }), 'TeacherClassCourseList.xlsx')
         } catch (e) {
-          if (typeof console !== 'undefined') console.log(e, wbout)
+          // if (typeof console !== 'undefined') console.log(e, wbout)
         }
         this.queryInfo.pagenum = oripagenum// 表格还原
         this.queryInfo.pagesize = oripagesize
