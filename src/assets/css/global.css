@@ -44,7 +44,7 @@ div .el-scrollbar__wrap {
 }
 
 .el-cascader {
-    width: 500px;
+    width: 100%;
 }
 
 /* .el-slider {

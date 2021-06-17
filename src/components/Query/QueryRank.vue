@@ -24,7 +24,8 @@
       <el-table :data="GradeList" border stripe :default-sort = "{prop: 'sum', order: 'descending'}" id="GradeList">
         <!-- stripe: 斑马条纹
         border：边框-->
-        <el-table-column type="index" label="排名"></el-table-column>
+        <!-- <el-table-column type="index" label="排名"></el-table-column> -->
+        <el-table-column type="index" prop="index+(pagesize*pagenum-1)" label="排名"></el-table-column>
         <el-table-column prop="sid" label="学生编号" sortable></el-table-column>
         <el-table-column prop="sname" label="学生姓名" sortable></el-table-column>
         <!-- <el-table-column prop="cname" label="课程名" sortable></el-table-column> -->
@@ -209,6 +210,7 @@ export default {
       callback(new Error('请输入合法的手机号码'))
     }
     return {
+      rank: 1,
       MenuTree: {},
       // options: [{ 'value': '信息工程学院', 'label': '信息工程学院', 'children': [{ 'value': '计算机系', 'label': '计算机系', 'children': [{ 'value': '计算机191班', 'label': '计算机191班' }, { 'value': '计算机192班', 'label': '计算机192班' }, { 'value': '计算机193班', 'label': '计算机193班' }] }, { 'value': '电子系', 'label': '电子系' }] }, { 'value': '机电工程学院', 'label': '机电工程学院' }, { 'value': '建筑工程学院', 'label': '建筑工程学院' }],
       // 获取用户列表查询参数对象
@@ -286,7 +288,8 @@ export default {
   },
   created () {
     this.getMenuTree()
-    this.getGradeList()
+    this.QueryRank()
+    // this.getGradeList()
   },
   methods: {
     async getMenuTree () {
@@ -294,7 +297,7 @@ export default {
       if (res.meta.status !== 200) {
         return this.$message.error('获取成绩列表失败！')
       }
-      console.log(res)
+      // console.log(res)
       this.MenuTree = res.data
     },
     async QueryRank () {
@@ -309,7 +312,7 @@ export default {
       if (res.meta.status !== 200) {
         return this.$message.error('获取成绩列表失败！')
       }
-      console.log(res)
+      // console.log(res)
       this.GradeList = res.data.GradeList
       this.total = res.data.total
       // console.log(this.GradeList)
@@ -326,7 +329,7 @@ export default {
       if (res.meta.status !== 200) {
         return this.$message.error('获取成绩列表失败！')
       }
-      console.log(res)
+      // console.log(res)
       this.GradeList = res.data.GradeList
       this.total = res.data.total
       // console.log(this.GradeList)
@@ -335,13 +338,15 @@ export default {
     handleSizeChange (newSize) {
       // console.log(newSize)
       this.queryInfo.pagesize = newSize
-      this.getGradeList()
+      // this.getGradeList()
+      this.QueryRank()
     },
     // 监听 页码值 改变事件
     handleCurrentChange (newSize) {
       // console.log(newSize)
       this.queryInfo.pagenum = newSize
-      this.getGradeList()
+      // this.getGradeList()
+      this.QueryRank()
     },
     // 监听 switch开关 状态改变
     async userStateChanged (userInfo) {
@@ -493,7 +498,7 @@ export default {
         try {
           FileSaver.saveAs(new Blob([wbout], { type: 'application/octet-stream' }), this.queryInfo.cname + '.xlsx')
         } catch (e) {
-          if (typeof console !== 'undefined') console.log(e, wbout)
+          // if (typeof console !== 'undefined') console.log(e, wbout)
         }
         this.queryInfo.pagenum = oripagenum// 表格还原
         this.queryInfo.pagesize = oripagesize
@@ -502,7 +507,7 @@ export default {
       })
     },
     handleChange (value) {
-      console.log(value[2])
+      // console.log(value[2])
       this.queryInfo.cname = value[2]
       return value
     }
