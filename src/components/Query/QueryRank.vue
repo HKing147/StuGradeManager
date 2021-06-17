@@ -25,7 +25,7 @@
         <!-- stripe: 斑马条纹
         border：边框-->
         <!-- <el-table-column type="index" label="排名"></el-table-column> -->
-        <el-table-column type="index" prop="index+(pagesize*pagenum-1)" label="排名"></el-table-column>
+        <el-table-column prop="rank" label="排名"></el-table-column>
         <el-table-column prop="sid" label="学生编号" sortable></el-table-column>
         <el-table-column prop="sname" label="学生姓名" sortable></el-table-column>
         <!-- <el-table-column prop="cname" label="课程名" sortable></el-table-column> -->
@@ -219,7 +219,8 @@ export default {
         // 当前页数
         pagenum: 1,
         // 每页显示多少数据
-        pagesize: 5
+        pagesize: 5,
+        cname: ''
       },
       GradeList: [],
       total: 0,
@@ -315,7 +316,7 @@ export default {
       // console.log(res)
       this.GradeList = res.data.GradeList
       this.total = res.data.total
-      // console.log(this.GradeList)
+      console.log(this.GradeList)
     },
     async getGradeList () {
       const { data: res } = await this.$http.get('getGradeList', { params: this.queryInfo })
