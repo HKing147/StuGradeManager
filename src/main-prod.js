@@ -21,7 +21,8 @@ import NProgress from 'nprogress'
 
 import axios from 'axios'
 // 配置请求根路径
-axios.defaults.baseURL = 'http://127.0.0.1:5678'
+// axios.defaults.baseURL = 'http://127.0.0.1:5678'
+axios.defaults.baseURL = 'http://47.100.190.87:8000/'
 // axios.defaults.baseURL = 'http://127.0.0.1:80/'
 // axios.defaults.baseURL = 'https://www.liulongbin.top:8888/api/private/v1/'
 // 在request 拦截器中, 展示进度条 NProgress.start()
