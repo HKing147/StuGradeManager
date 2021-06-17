@@ -14,7 +14,7 @@ import VueQuillEditor from 'vue-quill-editor'
 import 'quill/dist/quill.core.css'
 import 'quill/dist/quill.snow.css'
 import 'quill/dist/quill.bubble.css'
-
+import 'element-ui/lib/theme-chalk/index.css'
 // 导入NProgress, 包对应的JS和CSS
 import NProgress from 'nprogress'
 import 'nprogress/nprogress.css'
