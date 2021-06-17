@@ -316,7 +316,7 @@ export default {
       // console.log(res)
       this.GradeList = res.data.GradeList
       this.total = res.data.total
-      console.log(this.GradeList)
+      // console.log(this.GradeList)
     },
     async getGradeList () {
       const { data: res } = await this.$http.get('getGradeList', { params: this.queryInfo })
