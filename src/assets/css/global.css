@@ -46,7 +46,7 @@ div .el-scrollbar__wrap {
 .el-cascader {
     width: 100%;
 }
-.el-cascader-menu {
+/* .el-cascader-menu {
     height: 200px;
 }
 .el-cascader-panel {
@@ -54,7 +54,7 @@ div .el-scrollbar__wrap {
 }
 .el-scrollbar__wrap{
     height: 200px;
-}
+} */
   
 /* .el-slider {
     width: 500px;
