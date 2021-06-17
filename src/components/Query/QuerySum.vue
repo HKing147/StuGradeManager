@@ -77,7 +77,7 @@
               circle
               @click="delGrade(scope.row.sid)"
             ></el-button>
-            <el-tooltip
+            <!-- <el-tooltip
               class="item"
               effect="dark"
               content="角色分配"
@@ -91,7 +91,7 @@
                 circle
                 @click="showSetRole(scope.row)"
               ></el-button>
-            </el-tooltip>
+            </el-tooltip> -->
           </template>
         </el-table-column>
       </el-table>
